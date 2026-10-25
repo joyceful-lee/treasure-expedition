@@ -6,6 +6,8 @@ import {
   BookOpen,
   Check,
   ChevronDown,
+  ChevronLeft,
+  RotateCcw,
   ChevronRight,
   Coins,
   Compass,
@@ -40,6 +42,7 @@ import IslandMap from "./island-map";
 import TreasureArt from "./treasure-art";
 import CheckpointDetails from "./checkpoint-details";
 import InteractiveChallenge from "./interactive-challenge";
+import CheckpointStars from "./checkpoint-stars";
 type Tab = "map" | "collection" | "trades" | "leaderboard";
 const paths: Record<Tab, string> = {
   map: "/",
@@ -47,7 +50,12 @@ const paths: Record<Tab, string> = {
   trades: "/trades",
   leaderboard: "/leaderboard",
 };
-type Ranking = { username: string; score: number; attempts: number };
+type Ranking = {
+  username: string;
+  score: number;
+  attempts: number;
+  completed?: number;
+};
 async function api(url: string, body?: Record<string, unknown>) {
   const r = await fetch(
     url,
@@ -88,6 +96,7 @@ export default function Expedition({
   const [signUp, setSignUp] = useState(true);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hint, setHint] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
@@ -95,7 +104,7 @@ export default function Expedition({
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [answer, setAnswer] = useState("");
-  const [level, setLevel] = useState(1);
+  const [level, setLevel] = useState(0);
   const [boardRevision, setBoardRevision] = useState(0);
   const [rankings, setRankings] = useState<Ranking[]>([]);
   const [boardLoading, setBoardLoading] = useState(false);
@@ -106,13 +115,24 @@ export default function Expedition({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const completed = progress.filter((p) => p.completed_at).length;
   const totalScore = progress.reduce((sum, p) => sum + p.score, 0);
+  const availableOffers = treasures.filter((t) =>
+    inventory.some((i) => i.treasure_id === t.id && i.quantity > 0),
+  );
+  const selectedOffer = availableOffers.some((t) => t.id === offered)
+    ? offered
+    : (availableOffers[0]?.id ?? "");
   const cp = checkpoints[selected - 1];
   const status = stateFor(selected, progress);
   const nextAvailable = checkpoints.find((c) =>
     ["available", "attempted"].includes(stateFor(c.id, progress)),
   )?.id;
   const modal =
-    detailsOpen || authOpen || puzzleOpen || helpOpen || !!packReward;
+    detailsOpen ||
+    authOpen ||
+    puzzleOpen ||
+    helpOpen ||
+    resetOpen ||
+    !!packReward;
   const loadGame = useCallback(async () => {
     const [session, game] = await Promise.all([
       authClient.getSession(),
@@ -206,11 +226,23 @@ export default function Expedition({
     setMessage("");
     setError("");
   }
+  function browseCheckpoint(id: number) {
+    if (id < 1 || id > TOTAL_CHECKPOINTS || stateFor(id, progress) === "locked")
+      return;
+    setSelected(id);
+    setDetailsOpen(false);
+    setPuzzleOpen(true);
+    setAnswer("");
+    setHint(false);
+    setMessage("");
+    setError("");
+  }
   function closeModal() {
     setDetailsOpen(false);
     setAuthOpen(false);
     setPuzzleOpen(false);
     setHelpOpen(false);
+    setResetOpen(false);
     setPackReward(null);
     setMessage("");
     setError("");
@@ -292,12 +324,13 @@ export default function Expedition({
       });
       await loadGame();
       if (result.completed) {
-        setLevel(selected);
         setBoardRevision((v) => v + 1);
         setMessage(
           result.alreadyCompleted
             ? "You already discovered this treasure."
-            : `Checkpoint complete! +${result.score} points, +${result.coins} coins, and a new treasure.`,
+            : result.coins === 0
+              ? `Checkpoint complete! ${result.score} points saved. Its treasure and coins were claimed before your reset.`
+              : `Checkpoint complete! +${result.score} points, +${result.coins} coins, and a new treasure.`,
         );
       } else
         setMessage(
@@ -316,7 +349,7 @@ export default function Expedition({
   async function tradeAction(action: string, id?: string) {
     if (!requireProfile()) return;
     await run(async () => {
-      await api("/api/game", { action, id, offered, requested });
+      await api("/api/game", { action, id, offered: selectedOffer, requested });
       await Promise.all([loadGame(), loadTrades()]);
       setMessage(
         action === "trade"
@@ -436,11 +469,7 @@ export default function Expedition({
                 {signedIn ? "Choose explorer name" : "Sign up or log in"}
                 <ArrowRight size={15} />
               </button>
-            ) : (
-              <span className="explorer-tag">
-                <span className="online-dot" /> Explorer
-              </span>
-            )}
+            ) : null}
           </div>
         </header>
         <div className="page-content">
@@ -477,6 +506,21 @@ export default function Expedition({
                   <BookOpen size={16} /> How to play
                 </button>
               </section>
+              <div className="expedition-controls">
+                <span>
+                  Earn three stars on your first attempt, two on your second, or
+                  one on later attempts.
+                </span>
+                <button
+                  className="text-button"
+                  disabled={busy}
+                  onClick={() => {
+                    if (requireProfile()) setResetOpen(true);
+                  }}
+                >
+                  <RotateCcw size={15} /> Reset expedition
+                </button>
+              </div>
               <section className="stats-row" aria-label="Expedition stats">
                 <div className="stat">
                   <span className="stat-icon sand">
@@ -582,7 +626,7 @@ export default function Expedition({
                   <span className="eyebrow">THE EXPLORER’S SATCHEL</span>
                   <h2>The sealed field satchel</h2>
                   <p>
-                    A satchel draws one of 24 artifacts and costs 100 coins
+                    A satchel draws one of 24 artifacts and costs 400 coins
                     earned from solving clues. Both packs and completed
                     checkpoints use the same chances. Duplicates can be traded,
                     and completing the route does not guarantee the full
@@ -599,54 +643,81 @@ export default function Expedition({
                 </div>
                 <button
                   className="button"
-                  disabled={busy || (!!profile && profile.coins < 100)}
+                  disabled={busy || (!!profile && profile.coins < 400)}
                   onClick={openPack}
                 >
-                  <PackageOpen size={17} /> Open pack · 100 coins
+                  <PackageOpen size={17} /> Open pack · 400 coins
                 </button>
               </div>
               <div className="section-label">
                 <h2>Your collection</h2>
                 <span>
                   {inventory.filter((i) => i.quantity > 0).length} of{" "}
-                  {treasures.length}{" "}
-                  discovered
+                  {treasures.length} discovered
                 </span>
               </div>
-              <div className="treasure-grid">
-                {treasures.map((t, index) => {
-                  const quantity =
-                    inventory.find((i) => i.treasure_id === t.id)?.quantity ??
-                    0;
-                  return (
-                    <article
-                      key={t.id}
-                      className={`treasure-card ${quantity ? "owned" : "undiscovered"}`}
-                      data-specimen={String(index + 1).padStart(2, "0")}
-                    >
-                      <span className={`rarity ${t.rarity.toLowerCase()}`}>
-                        {t.rarity}
-                      </span>
-                      <div className="treasure-illustration">
-                        <TreasureArt kind={t.id} />
-                      </div>
-                      <h3>{t.name}</h3>
-                      <p>{t.description}</p>
-                      <small className="artifact-chance">
-                        {t.weight / 4}% chance per draw
-                      </small>
-                      <div className="treasure-bottom">
-                        <span>
-                          {quantity
-                            ? `${quantity} in your collection`
-                            : "Waiting to be discovered"}
-                        </span>
-                        {quantity ? <Check size={16} /> : null}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+              {rarityChances.map(({ rarity }) => (
+                <section
+                  className={`rarity-section rarity-${rarity.toLowerCase()}`}
+                  key={rarity}
+                  aria-label={`${rarity} treasures`}
+                >
+                  <div className="rarity-heading">
+                    <h2>{rarity}</h2>
+                    <span>
+                      {
+                        treasures.filter(
+                          (t) =>
+                            t.rarity === rarity &&
+                            inventory.some(
+                              (i) => i.treasure_id === t.id && i.quantity > 0,
+                            ),
+                        ).length
+                      }{" "}
+                      of {treasures.filter((t) => t.rarity === rarity).length}{" "}
+                      discovered
+                    </span>
+                  </div>
+                  <div className="treasure-grid">
+                    {treasures
+                      .filter((t) => t.rarity === rarity)
+                      .map((t, index) => {
+                        const quantity =
+                          inventory.find((i) => i.treasure_id === t.id)
+                            ?.quantity ?? 0;
+                        return (
+                          <article
+                            key={t.id}
+                            className={`treasure-card ${quantity ? "owned" : "undiscovered"}`}
+                            data-specimen={String(index + 1).padStart(2, "0")}
+                          >
+                            <span
+                              className={`rarity ${t.rarity.toLowerCase()}`}
+                            >
+                              {t.rarity}
+                            </span>
+                            <div className="treasure-illustration">
+                              <TreasureArt kind={t.id} />
+                            </div>
+                            <h3>{t.name}</h3>
+                            <p>{t.description}</p>
+                            <small className="artifact-chance">
+                              {t.weight / 4}% chance per draw
+                            </small>
+                            <div className="treasure-bottom">
+                              <span>
+                                {quantity
+                                  ? `${quantity} in your collection`
+                                  : "Waiting to be discovered"}
+                              </span>
+                              {quantity ? <Check size={16} /> : null}
+                            </div>
+                          </article>
+                        );
+                      })}
+                  </div>
+                </section>
+              ))}
             </>
           ) : null}
           {tab === "leaderboard" ? (
@@ -654,7 +725,7 @@ export default function Expedition({
               <PageHeading
                 eyebrow="EXPEDITION RECORDS"
                 title="The explorers’ register"
-                text="The register records the ten highest scores for each checkpoint, with earlier discoveries breaking a tie."
+                text="The register opens with the ten highest expedition totals. Choose a checkpoint to compare individual discoveries, with earlier discoveries breaking a tie."
               />
               <div className="board-layout">
                 <section className="panel leaderboard">
@@ -668,6 +739,9 @@ export default function Expedition({
                         value={level}
                         onChange={(e) => setLevel(Number(e.target.value))}
                       >
+                        <option value={0}>
+                          Entire expedition · Cumulative score
+                        </option>
                         {regions.map((region, index) => (
                           <optgroup
                             key={region.name}
@@ -691,7 +765,9 @@ export default function Expedition({
                       <tr>
                         <th>Rank</th>
                         <th>Explorer</th>
-                        <th>Attempts</th>
+                        <th>
+                          {level === 0 ? "Completed" : "Stars / attempts"}
+                        </th>
                         <th>Score</th>
                       </tr>
                     </thead>
@@ -710,7 +786,24 @@ export default function Expedition({
                                 </span>
                                 {r.username}
                               </td>
-                              <td>{r.attempts}</td>
+                              <td>
+                                {level === 0 ? (
+                                  `${r.completed} / 60`
+                                ) : (
+                                  <>
+                                    <CheckpointStars
+                                      attempts={r.attempts}
+                                      completed
+                                    />{" "}
+                                    <small>
+                                      {r.attempts}{" "}
+                                      {r.attempts === 1
+                                        ? "attempt"
+                                        : "attempts"}
+                                    </small>
+                                  </>
+                                )}
+                              </td>
                               <td>
                                 <strong>{r.score.toLocaleString()}</strong> pts
                               </td>
@@ -728,13 +821,13 @@ export default function Expedition({
                       <Trophy size={38} strokeWidth={1} />
                       <h3>No scores have been recorded yet</h3>
                       <p>
-                        Complete this checkpoint while signed in to add your
-                        score to the register.
+                        Complete a checkpoint while signed in to add your score
+                        to the register.
                       </p>
                       <button
                         className="button"
                         onClick={() => {
-                          setSelected(level);
+                          setSelected(level || 1);
                           navigate("map");
                         }}
                       >
@@ -748,7 +841,11 @@ export default function Expedition({
                     <TreasureArt kind="seal" />
                   </div>
                   <h2>How the register works</h2>
-                  <p>Complete a checkpoint to appear on its leaderboard.</p>
+                  <p>
+                    Your cumulative score adds up every completed checkpoint.
+                    Use the menu to see the top ten for an individual
+                    checkpoint.
+                  </p>
                   <ul>
                     <li>
                       Scores increase within each region, with a 1,000-point
@@ -810,10 +907,16 @@ export default function Expedition({
                   <label>
                     You offer
                     <select
-                      value={offered}
+                      value={selectedOffer}
+                      disabled={!availableOffers.length}
                       onChange={(e) => setOffered(e.target.value)}
                     >
-                      {treasures.map((t) => (
+                      {!availableOffers.length ? (
+                        <option value="">
+                          No treasures available to offer
+                        </option>
+                      ) : null}
+                      {availableOffers.map((t) => (
                         <option key={t.id} value={t.id}>
                           {t.name} (
                           {inventory.find((i) => i.treasure_id === t.id)
@@ -839,7 +942,9 @@ export default function Expedition({
                   </label>
                   <button
                     className="button"
-                    disabled={busy || (!!profile && offered === requested)}
+                    disabled={
+                      busy || !selectedOffer || selectedOffer === requested
+                    }
                   >
                     Post trade <ArrowRight size={16} />
                   </button>
@@ -915,9 +1020,11 @@ export default function Expedition({
             ? `Checkpoint ${selected}: ${cp.name}`
             : authOpen
               ? "Explorer account"
-              : helpOpen
-                ? "How to play"
-                : "Treasure discovery"
+              : resetOpen
+                ? "Reset expedition progress"
+                : helpOpen
+                  ? "How to play"
+                  : "Treasure discovery"
         }
         onCancel={closeModal}
         onClick={(e) => {
@@ -944,6 +1051,84 @@ export default function Expedition({
                 nextAvailable && inspectCheckpoint(nextAvailable)
               }
             />
+          ) : null}
+          {resetOpen ? (
+            <section className="reset-confirmation">
+              <div className="eyebrow">START ANOTHER EXPEDITION</div>
+              <h2>Return to the southern shore?</h2>
+              <p>
+                This clears your checkpoint progress, attempts, stars, and
+                leaderboard scores so you can begin again. Your account, coins,
+                treasures, and trades will stay in place.
+              </p>
+              <p>
+                Each checkpoint’s coins and artifact can be earned only once per
+                account, including after a reset. Your cleared scores cannot be
+                restored from the website.
+              </p>
+              <div className="checkpoint-navigation">
+                <button
+                  className="outline-button"
+                  disabled={busy}
+                  onClick={closeModal}
+                >
+                  Keep my progress
+                </button>
+                <button
+                  className="button"
+                  disabled={busy}
+                  onClick={() =>
+                    run(async () => {
+                      await api("/api/game", {
+                        action: "reset",
+                        confirmation: "RESET EXPEDITION",
+                      });
+                      await loadGame();
+                      setSelected(1);
+                      setLevel(0);
+                      setBoardRevision((v) => v + 1);
+                      closeModal();
+                      navigate("map");
+                      setMessage(
+                        "Your expedition is ready to begin again. Your collection, coins, and trades are safe.",
+                      );
+                    })
+                  }
+                >
+                  {busy ? "Resetting…" : "Reset my expedition"}
+                </button>
+              </div>
+            </section>
+          ) : null}
+          {detailsOpen || puzzleOpen ? (
+            <nav
+              className="checkpoint-navigation"
+              aria-label="Browse checkpoints"
+            >
+              <button
+                className="text-button"
+                disabled={
+                  busy ||
+                  selected <= 1 ||
+                  stateFor(selected - 1, progress) === "locked"
+                }
+                onClick={() => browseCheckpoint(selected - 1)}
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+              <span>{selected} / 60</span>
+              <button
+                className="text-button"
+                disabled={
+                  busy ||
+                  selected >= TOTAL_CHECKPOINTS ||
+                  stateFor(selected + 1, progress) === "locked"
+                }
+                onClick={() => browseCheckpoint(selected + 1)}
+              >
+                Next <ChevronRight size={16} />
+              </button>
+            </nav>
           ) : null}
           {authOpen ? (
             <>
@@ -1044,6 +1229,12 @@ export default function Expedition({
                 {cp.difficulty.toUpperCase()}
               </span>
               <h2>{cp.name}</h2>
+              <CheckpointStars
+                attempts={
+                  progress.find((p) => p.checkpoint === selected)?.attempts ?? 0
+                }
+                completed={status === "completed"}
+              />
               <p>{cp.subtitle}</p>
               <div className="puzzle-clue">
                 <span className="eyebrow">{cp.kind}</span>
@@ -1088,7 +1279,7 @@ export default function Expedition({
                     <button
                       className="button"
                       onClick={() => {
-                        inspectCheckpoint(selected + 1);
+                        browseCheckpoint(selected + 1);
                         setAnswer("");
                         setHint(false);
                         setMessage("");
@@ -1151,7 +1342,7 @@ export default function Expedition({
                   </button>
                   {hint ? <p className="hint">{cp.hint}</p> : null}
                   <small className="puzzle-footnote">
-                    A correct answer draws one random artifact and{" "}
+                    Your first completion draws one random artifact and{" "}
                     {coinReward(cp.id)} coins. Each incorrect attempt subtracts
                     25 score points.
                   </small>

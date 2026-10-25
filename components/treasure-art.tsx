@@ -3,34 +3,53 @@ import { useId } from "react";
 const newDrawings: Record<string, React.ReactNode> = {
   coin: (
     <>
-      <circle cx="80" cy="81" r="45" fill="#b68b50" />
-      <circle cx="80" cy="81" r="37" stroke="#e9d49e" strokeDasharray="2 4" />
+      <ellipse cx="81" cy="85" rx="46" ry="44" fill="#6f744e" />
+      <circle cx="78" cy="79" r="44" fill="#b49358" />
+      <circle cx="78" cy="79" r="37" stroke="#dfc589" strokeWidth="2" />
+      <circle cx="78" cy="79" r="33" stroke="#7c744c" strokeDasharray="1 5" />
       <path
-        d="m80 53 10 20 22 3-16 16 4 23-20-11-20 11 4-23-16-16 22-3Z"
-        fill="#d9ba78"
+        d="M78 52v43m-15-31h30M61 78q17 34 34 0l-8 4m-26-4 8 4"
+        stroke="#665e3f"
+        strokeWidth="3"
       />
-      <path d="M44 111q12 17 36 19" stroke="#e6cb8c" />
+      <path d="m48 55 4-5m51 48 5-5M43 78l4 7m46-45 6 4" stroke="#e1ca92" />
+      <path d="M43 100q12 17 34 18" stroke="#d6b87a" />
+      <path d="m57 49 6 2m33 53-4 6" stroke="#65795d" strokeWidth="3" />
     </>
   ),
   shard: (
     <>
-      <path d="m37 54 44-28 34 20 14 58-48 31-39-21Z" fill="#8caeb3" />
-      <path d="m37 54 24 7-5 33 25 41m0-109 11 29 23-9" stroke="#d8d4af" />
+      <path d="m45 48 38-20 30 18 12 50-24 30-56-11-11-40Z" fill="#ac7956" />
+      <path d="m46 48 37-16 27 17 10 45-23 25-49-9-9-35Z" fill="#d3bb91" />
       <path
-        d="m57 68 13 8 15-15 15 9 12-10m-54 40 17-11 13 12 25-12"
-        stroke="#355e6c"
-        strokeWidth="5"
+        d="m45 57 56-12m-59 21 70-13m-68 43 71 9m-68-1 62 10"
+        stroke="#537b85"
+        strokeWidth="4"
       />
+      <path
+        d="m53 78 8-9 10 13 10-15 11 13 10-12 9 17"
+        stroke="#47717d"
+        strokeWidth="3"
+      />
+      <path d="m83 32-8 22 4 15m40 25-18-7-4-14M45 48l5 9" stroke="#f0dab1" />
+      <path d="m49 109 48 10 23-25" stroke="#835b40" />
     </>
   ),
   arrowhead: (
     <>
-      <path d="m80 24 40 85-26-5v24H65v-24l-25 5Z" fill="#949b91" />
       <path
-        d="m80 24-8 76 22 4m-50 1 28-5-7 28m15-91 19 34-22-7m-4 19 33 5"
-        stroke="#d2d3bd"
+        d="m79 24 9 14 4 1 3 13 5 3 2 12 7 5 1 13 9 15-21 5-5 12 5 15H65l5-15-7-12-21-5 9-16 2-13 7-5 2-13 7-4 3-14Z"
+        fill="#77837b"
       />
-      <path d="m80 24-15 30-4-1-6 16 2 3-12 28" stroke="#525d54" />
+      <path d="m79 24-8 71 8 19 10-19Z" fill="#aab0a2" />
+      <path
+        d="m79 24 7 24 6 4-19 12 27 3-29 15 39 3-39 10-25 3m43-3 23 5m-33 14v13"
+        stroke="#d2d0b7"
+      />
+      <path
+        d="m69 49 8 5m-18 17 11 4m22 5 10-5m-37 31 9 8m17-8-6 9"
+        stroke="#465b52"
+      />
     </>
   ),
   bead: (
@@ -85,14 +104,28 @@ const newDrawings: Record<string, React.ReactNode> = {
   ),
   lantern: (
     <>
-      <path d="M65 38V27q15-22 30 0v11M52 49h56l-5 75H57Z" fill="#bc9148" />
-      <path d="M60 58h40v53H60Z" fill="#d7a558" />
       <path
-        d="M71 48v66m18-66v66M58 81h44m-46 35h48M51 44l29-16 29 16Z"
-        fill="#a68045"
+        d="M65 42V29a15 15 0 0 1 30 0v13"
+        stroke="#705c3c"
+        strokeWidth="4"
       />
-      <path d="M71 102q-7-17 9-30 11 16 5 29Z" fill="#f0d18a" />
-      <path d="M54 126h52l6 7H48Z" fill="#8c714a" />
+      <path d="M65 40V29a15 15 0 0 1 30 0" stroke="#bda16a" />
+      <path d="M55 55h50l-5 62H60Z" fill="#d1aa60" />
+      <path d="M62 61h36l-4 48H66Z" fill="#efd195" />
+      <path
+        d="M73 103q-10-13 7-35-2 14 6 19 9 15-5 17Z"
+        fill="#bd7845"
+        stroke="#b48545"
+      />
+      <path d="M77 101q-5-8 3-15 9 14 1 16Z" fill="#f9e3a8" stroke="none" />
+      <path d="M52 50h56v8H52Zm6 65h44v8H58Zm-5 8h54l5 9H48Z" fill="#8f7549" />
+      <path d="m54 50 14-12h24l14 12Z" fill="#b89b5f" />
+      <path
+        d="m61 58 4 56m34-56-4 56M80 58v56M61 88h38"
+        stroke="#8f7549"
+        strokeWidth="3"
+      />
+      <path d="M60 53h40m-43 73h46" stroke="#dec28a" />
     </>
   ),
   tablet: (
@@ -109,29 +142,52 @@ const newDrawings: Record<string, React.ReactNode> = {
   ),
   astrolabe: (
     <>
-      <path d="M71 32V21q9-12 18 0v11" stroke="#9d7b42" strokeWidth="5" />
-      <circle cx="80" cy="82" r="49" fill="#b99b58" />
-      <circle cx="80" cy="82" r="41" fill="#dfcd94" />
-      <circle cx="80" cy="82" r="33" strokeDasharray="1 4" />
+      <circle cx="80" cy="24" r="10" fill="#ad8c4e" />
+      <circle cx="80" cy="24" r="5" fill="#e5d7b2" />
+      <path d="M74 34h12v10H74Z" fill="#a78445" />
+      <circle cx="80" cy="87" r="46" fill="#b29454" />
+      <circle cx="80" cy="87" r="39" fill="#dbca94" />
+      <circle cx="80" cy="87" r="34" stroke="#796d45" strokeDasharray="1 4" />
       <path
-        d="M49 105 99 49m-50 56 24-5 26-51-23 10Zm-18-9q28-38 52 0m-60 30q36-39 70-4M80 44v76M43 82h74"
-        stroke="#66765a"
+        d="M48 96a34 34 0 0 1 64 0M51 105a34 34 0 0 1 58 0M80 53v68M46 87h68"
+        stroke="#a1905c"
       />
-      <circle cx="80" cy="82" r="5" fill="#9d7b42" />
+      <circle cx="80" cy="87" r="24" stroke="#6e7d64" />
+      <path
+        d="M80 63 92 83 106 89 88 96 80 111 73 94 54 87 72 80Z"
+        stroke="#69765a"
+      />
+      <g transform="rotate(35 80 87)">
+        <path d="M77 49h6v76h-6Z" fill="#ac8444" />
+        <path d="M73 51h14v7H73Zm0 65h14v7H73Z" fill="#dfc38b" />
+      </g>
+      <circle cx="80" cy="87" r="5" fill="#6b704d" />
+      <circle cx="80" cy="87" r="2" fill="#ead49b" />
+      <path d="M51 118q14 12 30 12" stroke="#e4cd91" />
     </>
   ),
   mask: (
     <>
-      <path d="M40 38q40-25 80 0l-8 65-32 32-32-32Z" fill="#454e4b" />
       <path
-        d="M49 58q15-12 28 4L56 75Zm34 4q14-16 28-4l-7 17Z"
-        fill="#7ca5a0"
+        d="M45 41 62 29h36l17 12 4 30-9 35-18 22H68l-18-22-9-35Z"
+        fill="#333f40"
       />
       <path
-        d="M80 57 69 91l21 1m-25 16q15 9 30 0M46 43l10 55 24 26 24-26 10-55"
-        stroke="#9b9c7d"
+        d="m45 41 18 11 17-16 18 16 17-11-5 29-14 10 10 23-15 21-11-15-12 15-15-21 12-23-15-10Z"
+        fill="#526367"
       />
-      <path d="M65 115h30" stroke="#b88d59" />
+      <path
+        d="m63 52 17 12 18-12-8 31 9 19-19 10-19-10 10-19Z"
+        fill="#263638"
+      />
+      <path d="m49 65 9-5 17 11-17 8Zm62 0-9-5-17 11 17 8Z" fill="#77a5a0" />
+      <path d="m55 69 15 4m35-4-15 4" stroke="#142f34" strokeWidth="3" />
+      <path d="m80 66-7 27h14Zm-11 37q11-5 22 0l-5 8H74Z" fill="#788178" />
+      <path
+        d="M62 34h36M48 43l10 14m54-14-10 14M53 92l6 9m48-9-6 9m-25 17h8"
+        stroke="#bec1a0"
+      />
+      <path d="m45 83 5 4m65-4-5 4" stroke="#c49c57" strokeWidth="3" />
     </>
   ),
   dagger: (
@@ -224,18 +280,34 @@ const newDrawings: Record<string, React.ReactNode> = {
   ),
   phoenix: (
     <>
-      <path d="M71 33V22q9-11 18 0v11" stroke="#b78a40" strokeWidth="4" />
-      <circle cx="80" cy="83" r="48" fill="#caa65a" />
-      <circle cx="80" cy="83" r="41" stroke="#ebd59b" />
-      <path
-        d="m80 109-17 16 4-25Q35 93 43 59l27 21-4-24 15 12 14-20 1 25 25-18q5 34-29 47l4 24Z"
-        fill="#e0bd6a"
+      <circle cx="80" cy="24" r="10" fill="#b59351" />
+      <circle cx="80" cy="24" r="5" fill="#e5d7b2" />
+      <path d="M74 33h12v9H74Z" fill="#b59351" />
+      <circle cx="80" cy="86" r="46" fill="#9b713e" />
+      <circle cx="80" cy="84" r="44" fill="#caa65f" />
+      <circle
+        cx="80"
+        cy="84"
+        r="38"
+        fill="#985b42"
+        stroke="#ebd29a"
+        strokeWidth="2"
       />
       <path
-        d="m45 66 22 21m48-23-23 24M74 68l6 22 7-11m-7 11-6 14h13"
-        stroke="#9b6e39"
+        d="M77 88Q57 81 47 58q-2 24 16 39-17-2-22-18 2 24 29 29l-8 14 18-10 18 10-8-14q27-5 29-29-5 16-22 18 18-15 16-39-10 23-30 30Z"
+        fill="#e7c67c"
       />
-      <path d="m80 83 7 12-7 12-7-12Z" fill="#a85744" />
+      <path
+        d="M74 96q9-17 4-28-3-9 4-13 8-4 12 2l-9 2 8 5-9 1q10 17 0 33Z"
+        fill="#edcf8c"
+      />
+      <path
+        d="M80 108v15m-7-15-5 9m19-9 5 9M50 69l19 26M110 69 91 95M47 84l20 16m46-16-20 16"
+        stroke="#9d6e39"
+      />
+      <circle cx="85" cy="57" r="1.5" fill="#564233" stroke="none" />
+      <path d="m80 93 6 8-6 8-6-8Z" fill="#b75444" />
+      <path d="M48 111q13 13 29 14" stroke="#edcf8c" />
     </>
   ),
 };

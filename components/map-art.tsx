@@ -142,7 +142,7 @@ export default function MapArt() {
     <svg
       className="island-art"
       viewBox="0 0 1000 600"
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
       aria-hidden="true"
     >
       <defs>
@@ -260,8 +260,19 @@ export default function MapArt() {
           <g transform="translate(0 -10)">
             <path d="M480 369h61v8h-61Zm5 0v-25h8v25m14 0v-25h8v25m15 0v-25h8v25M477 344l33-18 34 18Z" />
           </g>
-          <g transform="translate(210 24) scale(.75)">
-            <path d="M819 107h42v6h-42Zm3 0V83h9v24m18 0V83h9v24M817 83l10-12 10 12m6 0 10-12 10 12M834 107V90h12v17m-15-17 9-13 9 13Z" />
+          <g transform="translate(843 91) scale(.75)">
+            <path
+              d="M-23 13h46v5h-46Zm4 0V-5h38v18M-25-5 0-22 25-5Z"
+              fill="#c8b582"
+            />
+            <path
+              d="M-19-5h38v4h-38M-14 1v11m28-11v11M-6 13V3a6 6 0 0 1 12 0v10"
+              stroke="#796d4e"
+            />
+            <path d="M-18-10 0-21l18 11M-28 18h56v4h-56" fill="#e4d5ad" />
+            <path d="M-31 16V-9h8v25m46 0V-9h8v25M-33-9l6-9 6 9m0 0h-12m54 0 6-9 6 9m-12 0h12" />
+            <path d="M-8-8h16m-12-3h8M-19 19h38" stroke="#ab9464" />
+            <path d="m0 4 3 4-3 4-3-4Z" fill="#81927a" />
           </g>
         </g>
         <g
@@ -270,9 +281,13 @@ export default function MapArt() {
           fill="#ded0a9"
           strokeWidth="1.2"
         >
-          <path d="M-20 15h40v5h-40Zm4 0v-23h32v23M-20-8 0-23 20-8Z" />
-          <circle cy="3" r="6" fill="#8b9c8a" />
-          <path d="m-3 5 7-6" />
+          <path d="M-18 16h47v5h-47Zm4 0V-7h34v23" fill="#c8bd98" />
+          <path d="M-18-7a21 21 0 0 1 42 0Z" fill="#8d9b83" />
+          <path d="M3-28Q-5-19-4-7m7-21q8 9 7 21M-19-5h44v4h-44" fill="none" />
+          <path d="M-5 16V8a6 6 0 0 1 12 0v8M14 4h4v6h-4" fill="#697c6e" />
+          <path d="m10-20 16-13 4 5-17 12Z" fill="#ad9564" />
+          <path d="m25-34 6 8m-20 9 3 5M-24 21h57v4h-57" />
+          <path d="M-10 0v14m21-14v14m-25 3h34" stroke="#e7d9b6" />
         </g>
       </g>
       <path

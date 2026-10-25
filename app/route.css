@@ -50,7 +50,8 @@
   position: relative;
   width: 100%;
   min-width: 1000px;
-  height: 600px;
+  height: auto;
+  aspect-ratio: 5 / 3;
 }
 .route-scroll .island-art {
   width: 100% !important;
@@ -617,4 +618,76 @@
   color: #7a765f;
   font-size: 12px;
   margin: 0 0 15px;
+}
+
+.checkpoint-stars {
+  display: inline-flex;
+  gap: 4px;
+  color: #a67a28;
+  vertical-align: middle;
+  margin: 5px 0;
+}
+.checkpoint-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 0;
+  border-block: 1px solid #c8b997;
+  margin-bottom: 20px;
+}
+.checkpoint-navigation button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.expedition-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin: 0 0 20px;
+  color: #6a6e57;
+  font-size: 14px;
+}
+.expedition-controls button {
+  white-space: nowrap;
+}
+.rarity-section {
+  margin: 32px 0 42px;
+}
+.rarity-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  border-bottom: 1px solid #bfb18d;
+  margin: 0 0 20px;
+  padding: 0 0 12px;
+}
+.rarity-heading h2 {
+  margin: 0;
+  font: 30px var(--serif);
+}
+.rarity-heading span {
+  color: #74725f;
+  font-size: 14px;
+}
+.rarity-legendary .rarity-heading {
+  border-color: #ad813d;
+}
+.rarity-epic .rarity-heading {
+  border-color: #8a708f;
+}
+.leaderboard td small {
+  display: block;
+  color: #74725f;
+}
+@media (max-width: 650px) {
+  .expedition-controls {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .checkpoint-navigation {
+    gap: 8px;
+  }
 }

@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
 import MapArt from "./map-art";
+import { starsFor } from "@/lib/ratings";
 import {
   checkpoints,
   regions,
@@ -78,6 +79,11 @@ export default function IslandMap({
 
           {checkpoints.map((cp) => {
             const state = stateFor(cp.id, progress);
+            const record = progress.find((p) => p.checkpoint === cp.id);
+            const stars = starsFor(
+              record?.attempts ?? 0,
+              !!record?.completed_at,
+            );
             const color = pinStates.find((s) => s.id === state)!.color;
             return (
               <button
@@ -96,7 +102,7 @@ export default function IslandMap({
                   } as React.CSSProperties
                 }
                 onClick={() => onSelect(cp.id)}
-                aria-label={`Checkpoint ${cp.id}: ${cp.name}, ${state}${cp.major ? ", extreme challenge" : ""}`}
+                aria-label={`Checkpoint ${cp.id}: ${cp.name}, ${state}${stars ? `, ${stars} out of 3 stars` : ""}${cp.major ? ", extreme challenge" : ""}`}
                 title={`${cp.id}. ${cp.name} · ${state}`}
               >
                 <span className="pin-circle">{cp.id}</span>

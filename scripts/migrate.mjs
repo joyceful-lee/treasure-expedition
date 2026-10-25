@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 const sql = neon(process.env.DATABASE_URL);
 const source = (
   await Promise.all(
-    ["schema.sql", "route-v2.sql", "artifacts-v3.sql"].map((file) =>
-      readFile(new URL(`../db/${file}`, import.meta.url), "utf8"),
+    ["schema.sql", "route-v2.sql", "artifacts-v3.sql", "expedition-v4.sql"].map(
+      (file) => readFile(new URL(`../db/${file}`, import.meta.url), "utf8"),
     ),
   )
 ).join("\n");

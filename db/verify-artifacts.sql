@@ -18,7 +18,7 @@ BEGIN
   ASSERT (result->>'alreadyCompleted')::boolean,'Replay protection';
   ASSERT (SELECT sum(quantity)=60 FROM expedition.all_inventory WHERE user_id=a),'No reroll on replay';
   reward:=expedition.open_artifact_pack(a);
-  ASSERT (SELECT coins=7100 FROM expedition.users WHERE id=a),'Pack debit';
+  ASSERT (SELECT coins=6800 FROM expedition.users WHERE id=a),'Pack debit';
   ASSERT (SELECT sum(quantity)=61 FROM expedition.all_inventory WHERE user_id=a),'Pack artifact saved';
   INSERT INTO expedition.inventory VALUES(a,'compass',2);
   PERFORM expedition.grant_artifact(b,'phoenix');

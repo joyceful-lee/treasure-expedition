@@ -8,6 +8,7 @@ import {
 import { treasures } from "@/lib/artifacts";
 import type { Progress } from "@/lib/expedition";
 import TreasureArt from "./treasure-art";
+import CheckpointStars from "./checkpoint-stars";
 export default function CheckpointDetails({
   checkpoint: cp,
   status,
@@ -33,6 +34,10 @@ export default function CheckpointDetails({
         {regions[cp.region].name}
       </div>
       <h2>{cp.name}</h2>
+      <CheckpointStars
+        attempts={record?.attempts ?? 0}
+        completed={!!record?.completed_at}
+      />
       <p>{cp.subtitle}</p>
       <div className="checkpoint-detail-meta">
         <span className={`status-pill ${status}`}>{status}</span>

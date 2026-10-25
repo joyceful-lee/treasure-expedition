@@ -73,6 +73,15 @@ export async function POST(request: NextRequest) {
         await sql`SELECT expedition.submit_artifact_answer(${uid}::uuid,${body.checkpoint}::integer,${isCorrect(body.checkpoint, body.answer)}::boolean) AS result`;
       return NextResponse.json(rows[0].result);
     }
+    if (body.action === "reset") {
+      if (body.confirmation !== "RESET EXPEDITION")
+        return NextResponse.json(
+          { error: "Confirm the expedition reset first." },
+          { status: 400 },
+        );
+      await sql`SELECT expedition.reset_expedition(${uid}::uuid)`;
+      return NextResponse.json({ ok: true });
+    }
     if (body.action === "pack") {
       const rows =
         await sql`SELECT expedition.open_artifact_pack(${uid}::uuid) AS reward`;

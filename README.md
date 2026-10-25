@@ -8,7 +8,7 @@ A treasure-map puzzle adventure for middle and high-school explorers. Built with
 - Neon email/password signup and login, plus unique public explorer nicknames.
 - Server-checked answers, persistent progress, and first-solve rewards.
 - Public top 10 leaderboard for each checkpoint, joined to the users table; emails remain private.
-- 24 illustrated artifacts across Common, Uncommon, Rare, Epic, and Legendary rarities; both solved checkpoints and 100-coin packs grant weighted random draws. Duplicates are tradable.
+- 24 illustrated artifacts across Common, Uncommon, Rare, Epic, and Legendary rarities; both solved checkpoints and 400-coin packs grant weighted random draws. Duplicates are tradable.
 - Atomic trade escrow, acceptance, cancellation, coin spending, and reward grants in Postgres functions.
 - Scrollable illustrated island with checkpoint detail pop-ups, region shortcuts, keyboard-accessible dialogs, and free hints.
 - Six extreme interactive finales: a riddle reliquary, magic square, cipher rotors, ordered bridge plates, rotated star chart, and a three-part vault.
@@ -79,3 +79,12 @@ The map is drawn locally in SVG. Fonts use Google Fonts with local serif/sans-se
 `db/artifacts-v3.sql` adds the weighted catalog and a new artifact ledger alongside the original inventory. The `all_inventory` and `all_trades` views combine existing and new records, so existing collections and open offers are preserved without copying or replacing player data. New trade functions can spend either ledger and settle old offers. New checkpoint completions atomically save the score, completion time, and drawn artifact ID before granting coins and inventory. Replaying a completed checkpoint never rerolls its reward.
 
 Rarity rates are Common 60%, Uncommon 24%, Rare 12%, Epic 3%, and Legendary 1%. The 24 positive integer weights total 400. Public scores bypass caching and refresh every 15 seconds while visible, on window focus, and after the player returns from completing a checkpoint. `db/verify-artifacts.sql` exercises all 60 completions, joined leaderboard records, replay protection, pack debit, legacy and new trades, and escrow refunds with rolled-back fixtures.
+
+
+## Expedition revisions
+
+The collection groups artifacts by rarity, and trade offers list only owned, unreserved artifacts. Satchels cost 400 coins; checkpoint rewards remain 100 coins (300 at finales). A checkpoint earns three stars on attempt one, two on attempt two, and one on later successful attempts. Ratings derive from saved progress.
+
+The leaderboard defaults to the top ten cumulative scores, with individual checkpoint boards in the selector. Checkpoint dialogs support previous/next browsing, and the map maintains its 5:3 aspect ratio.
+
+`db/expedition-v4.sql` adds lifetime reward claims and archived reset history. An authenticated, same-origin reset request requires explicit confirmation and clears only that account's progress and leaderboard entries; inventory, coins, and trades remain. Previously claimed checkpoint rewards cannot be farmed after restarting. `db/verify-expedition-v4.sql` verifies reset isolation, archives, replay protection, scores, and pack pricing using rolled-back fixtures. Owner answer keys belong in ignored local `outputs/`, never public routes or client imports.
