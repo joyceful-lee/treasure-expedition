@@ -4,12 +4,23 @@ import { checkpoints, stateFor, type Progress } from "@/lib/expedition";
 function Tree({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
   return (
     <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <path d="M0 9V-15" stroke="#63745a" strokeWidth="3" />
       <path
-        d="M-12 0L0-26 12 0ZM-10-12L0-35 10-12Z"
-        fill="#789478"
-        stroke="#617f69"
-        strokeWidth="1"
+        d="M0 12V-31M0-18l-7 9m7-2 8 8M0-2l-9 8"
+        stroke="#4e654d"
+        strokeWidth="1.5"
+        fill="none"
+      />
+      <path
+        d="M-14 3l7-9-5 1 8-12-5 2L0-37l9 22-5-2 8 12-5-1 7 9-11-3v8H-3V0Z"
+        fill="#748466"
+        stroke="#4c654c"
+        strokeWidth=".7"
+      />
+      <path
+        d="M0-28v29m0-17-6 7m6 0-9 8m9-13 7 8M0-5l10 8"
+        stroke="#c0c39b"
+        strokeWidth=".65"
+        fill="none"
       />
     </g>
   );
@@ -25,6 +36,18 @@ function Mountain({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
       />
       <path d="M0-37L38 22H4Z" fill="#a3aa94" />
       <path d="M-12-17L0-37 15-13 4-18-2-11Z" fill="#eee9d8" />
+      <path
+        d="M0-32L-5-13-25 15m26-41 6 22 23 22M-4-6l-12 19m18-12 9 16M-13 2l-8 13m29-5 4 8M-31 21h65"
+        stroke="#69775d"
+        strokeWidth=".65"
+        fill="none"
+      />
+      <path
+        d="M-21 11l-3 8m9-12-4 13m10-16-4 16m7-13-3 14m18-8 4 7m3-10 6 10"
+        stroke="#69775d"
+        strokeWidth=".5"
+        fill="none"
+      />
     </g>
   );
 }
@@ -46,6 +69,15 @@ export default function IslandMap({
         aria-hidden="true"
       >
         <defs>
+          <pattern
+            id="engraved-shore"
+            width="5"
+            height="7"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(24)"
+          >
+            <path d="M0 0v7" stroke="#72816a" strokeWidth=".7" opacity=".25" />
+          </pattern>
           <pattern
             id="water"
             width="58"
@@ -73,8 +105,12 @@ export default function IslandMap({
             />
           </filter>
         </defs>
-        <rect width="1000" height="600" fill="#dfe9e1" />
+        <rect width="1000" height="600" fill="#d7ddc7" />
         <rect width="1000" height="600" fill="url(#water)" />
+        <g stroke="#929d7d" strokeWidth=".6" opacity=".55" fill="none">
+          <rect x="14" y="14" width="972" height="572" />
+          <path d="M14 300h12m948 0h12M500 14v12m0 548v12M250 14v7m500-7v7M250 579v7m500-7v7M14 150h7m-7 300h7m958-300h7m-7 300h7" />
+        </g>
         <path
           d="M127 425Q64 355 145 276T225 176Q244 115 350 127T492 86Q553 39 653 65T801 73Q920 95 916 175T924 298Q983 364 904 430T748 462Q676 561 575 514T408 535Q344 567 265 512T127 425Z"
           fill="none"
@@ -83,7 +119,7 @@ export default function IslandMap({
         />
         <path
           d="M127 425Q64 355 145 276T225 176Q244 115 350 127T492 86Q553 39 653 65T801 73Q920 95 916 175T924 298Q983 364 904 430T748 462Q676 561 575 514T408 535Q344 567 265 512T127 425Z"
-          fill="#f0e8cb"
+          fill="#e7d8ac"
           stroke="#c4c5a1"
           strokeWidth="2"
           filter="url(#island-shadow)"
@@ -92,6 +128,10 @@ export default function IslandMap({
           d="M127 425Q64 355 145 276T225 176Q244 115 350 127T492 86Q553 39 653 65T801 73Q920 95 916 175T924 298Q983 364 904 430T748 462Q676 561 575 514T408 535Q344 567 265 512T127 425Z"
           fill="url(#dots)"
         />
+        <g fill="none" stroke="#a7a47c" strokeWidth=".75" opacity=".65">
+          <path d="M151 420q-51-63 15-127t78-97q22-55 106-46t151-43q58-40 148-20t139 14q99 19 105 83M173 425q-44-67 19-113t79-104q20-35 75-32M281 475q71 59 130 37t161-19q93 49 164-57M299 461q65 51 110 34t159-18M520 156q55-62 138-37t112 9M540 167q46-52 100-28m83 23q22-15 49-10M717 416q64 32 125-20t44-111" />
+          <path d="M490 438q-40 14-55-8t-33-15m74 41q-44 8-66-18M824 197q44 30 41 80m-24-69q32 35 25 68" />
+        </g>
         <path
           d="M238 301Q219 213 310 185T440 199Q489 261 421 309T300 369Z"
           fill="#ced6ad"
@@ -189,6 +229,32 @@ export default function IslandMap({
           <path d="M0-43V43M-43 0H43" />
           <path d="M0-29L7 0 0 29-7 0Z" fill="#879b86" />
           <path d="M0-29L-7 0H0Z" fill="#f1ecd5" />
+        </g>
+        <g transform="translate(90 105)" stroke="#66765d" strokeWidth=".7">
+          {[45, 90, 135].map((angle) => (
+            <path
+              key={angle}
+              transform={`rotate(${angle})`}
+              d="M0-30L4 0 0 30-4 0Z"
+              fill={angle === 90 ? "#a9ae8b" : "#cbd0ae"}
+            />
+          ))}
+          <path d="M0-35L4 0 0 35-4 0Z" fill="#6b7e62" />
+          <circle r="3" fill="#e7dec0" />
+        </g>
+        <g
+          transform="translate(815 548) scale(.65) rotate(-8)"
+          stroke="#586c58"
+          strokeWidth="1"
+          fill="#e9e3c7"
+        >
+          <path d="M-32 8q25 24 60 0l-6 16h-43Z" fill="#8a997a" />
+          <path d="M-6 10v-66m23 64v-48M-9-50Q-33-34-29-7H-9ZM-3-51Q18-32 10-8H-3ZM19-34q22 9 18 33H19Z" />
+          <path
+            d="M-33 28q15-5 30 0t31 0M-22 34q15-5 30 0m-32-52h14m2-15h16m15 17h12"
+            fill="none"
+          />
+          <path d="M-7-57l17 3-17 5" fill="#9b6f45" />
         </g>
         <text
           x="90"

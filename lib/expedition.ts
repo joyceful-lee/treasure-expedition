@@ -2,7 +2,7 @@ export const checkpoints = [
   {
     id: 1,
     name: "The Landing",
-    subtitle: "Every adventure starts with a clue.",
+    subtitle: "A riddle left near the landing marks the way inland.",
     area: "Sunwashed shore",
     difficulty: "Beginner",
     kind: "Riddle",
@@ -16,7 +16,8 @@ export const checkpoints = [
   {
     id: 2,
     name: "Whispering Woods",
-    subtitle: "Listen closely. The forest has a pattern.",
+    subtitle:
+      "A sequence carved into the trees marks the route through the forest.",
     area: "Emerald forest",
     difficulty: "Easy",
     kind: "Number pattern",
@@ -30,7 +31,7 @@ export const checkpoints = [
   {
     id: 3,
     name: "The Sunken Ruins",
-    subtitle: "An ancient message beneath the surface.",
+    subtitle: "A coded inscription survives inside the flooded temple.",
     area: "Forgotten temple",
     difficulty: "Medium",
     kind: "Cipher",
@@ -44,7 +45,8 @@ export const checkpoints = [
   {
     id: 4,
     name: "Serpent Pass",
-    subtitle: "A winding path. A sharper mind.",
+    subtitle:
+      "The trail narrows beside three chests whose labels cannot be trusted.",
     area: "Mountain trail",
     difficulty: "Tricky",
     kind: "Logic",
@@ -58,7 +60,8 @@ export const checkpoints = [
   {
     id: 5,
     name: "The Moon Observatory",
-    subtitle: "Look beyond what meets the eye.",
+    subtitle:
+      "An inscription beside the moon gate describes a three-digit code.",
     area: "Celestial summit",
     difficulty: "Hard",
     kind: "Number puzzle",
@@ -72,7 +75,8 @@ export const checkpoints = [
   {
     id: 6,
     name: "The Lost Treasury",
-    subtitle: "One final secret. A legendary discovery.",
+    subtitle:
+      "The last inscription guards the entrance to the island’s treasury.",
     area: "Heart of the island",
     difficulty: "Expert",
     kind: "Final cipher",
@@ -88,44 +92,43 @@ export const treasures = [
   {
     id: "compass",
     name: "Bronze Compass",
-    icon: "🧭",
     rarity: "Common",
-    description: "A little direction for a big adventure.",
+    description:
+      "A brass-cased compass with a worn sighting ring and a red north needle.",
   },
   {
     id: "scarab",
     name: "Jade Scarab",
-    icon: "🪲",
     rarity: "Uncommon",
-    description: "A tiny guardian of ancient secrets.",
+    description: "A carved green scarab mounted on six slender bronze legs.",
   },
   {
     id: "vase",
     name: "Painted Amphora",
-    icon: "🏺",
     rarity: "Uncommon",
-    description: "Stories painted a thousand years ago.",
+    description:
+      "A two-handled clay vessel with geometric bands around its shoulder.",
   },
   {
     id: "gem",
     name: "Serpent Emerald",
-    icon: "💎",
     rarity: "Rare",
-    description: "The green heart of the mountain.",
+    description:
+      "A cut green crystal whose pale seams follow the shape of its facets.",
   },
   {
     id: "moon",
     name: "Moonstone",
-    icon: "🌙",
     rarity: "Rare",
-    description: "A piece of the night sky, kept safe.",
+    description:
+      "A translucent stone set into a narrow bronze base beneath a crescent mark.",
   },
   {
     id: "crown",
     name: "Sun King’s Crown",
-    icon: "👑",
     rarity: "Legendary",
-    description: "The greatest discovery on the island.",
+    description:
+      "A hammered gold circlet set with green stone and two red cabochons.",
   },
 ] as const;
 export type Progress = {

@@ -32,6 +32,7 @@ import {
   type Trade,
 } from "@/lib/expedition";
 import IslandMap from "./island-map";
+import TreasureArt from "./treasure-art";
 type Tab = "map" | "collection" | "trades" | "leaderboard";
 const paths: Record<Tab, string> = {
   map: "/",
@@ -52,7 +53,7 @@ async function api(url: string, body?: Record<string, unknown>) {
       : undefined,
   );
   const data = await r.json();
-  if (!r.ok) throw new Error(data.error || "Something went wrong. Try again.");
+  if (!r.ok) throw new Error(data.error || "That action could not be saved; please try again.");
   return data;
 }
 const navigation = [
@@ -224,7 +225,9 @@ export default function Expedition({
         await loadGame();
       }
       setAuthOpen(false);
-      setMessage("Welcome, explorer. Your adventure is ready!");
+      setMessage(
+        "Your explorer account is ready, and your progress will be saved as you continue.",
+      );
     });
   }
   async function submitAnswer(event: React.FormEvent) {
@@ -242,7 +245,10 @@ export default function Expedition({
             ? "You already discovered this treasure."
             : `Checkpoint complete! +${result.score} points, +100 coins, and a new treasure.`,
         );
-      } else setMessage("Not quite! Look at the clue again. You’ve got this.");
+      } else
+        setMessage(
+          "That answer does not fit the clue yet; you can try again or open the hint.",
+        );
     });
   }
   async function openPack() {
@@ -262,7 +268,7 @@ export default function Expedition({
         action === "trade"
           ? "Trade posted! Your offered treasure is reserved."
           : action === "cancel"
-            ? "Trade cancelled. Your treasure is back in your collection."
+            ? "Your trade has been cancelled and the treasure returned to your collection."
             : "Trade complete! Check your collection.",
       );
     });
@@ -286,7 +292,7 @@ export default function Expedition({
             Treasure<span>Expedition</span>
           </span>
         </a>
-        <div className="sidebar-caption">THE ADVENTURE IS YOURS</div>
+        <div className="sidebar-caption">FIELD JOURNAL / VOL. I</div>
         <nav aria-label="Main navigation">
           {navigation.map((n) => (
             <button
@@ -301,10 +307,10 @@ export default function Expedition({
           ))}
         </nav>
         <div className="sidebar-note">
-          <span className="note-star">✧</span>
+          <TreasureArt kind="compass" className="journal-drawing" />
           <p>
-            A little curiosity.
-            <br />A world of discovery.
+            The southern shore is the only part of the island marked on the old
+            chart.
           </p>
           <span className="note-line" />
         </div>
@@ -328,7 +334,7 @@ export default function Expedition({
           <div>
             <strong>{profile?.username || "New explorer"}</strong>
             <small>
-              {profile ? "Adventure in progress" : "Your story starts here"}
+              {profile ? "Expedition in progress" : "Not signed in"}
             </small>
           </div>
           {signedIn ? (
@@ -375,7 +381,7 @@ export default function Expedition({
                   setAuthOpen(true);
                 }}
               >
-                {signedIn ? "Choose explorer name" : "Join the expedition"}
+                {signedIn ? "Choose explorer name" : "Sign up or log in"}
                 <ArrowRight size={15} />
               </button>
             ) : (
@@ -404,10 +410,13 @@ export default function Expedition({
               <section className="page-heading">
                 <div>
                   <div className="eyebrow">
-                    <span /> YOUR NEXT DISCOVERY AWAITS
+                    <span /> THE ISLAND SURVEY
                   </div>
-                  <h1>Adventure is on the horizon.</h1>
-                  <p>Follow the clues. Uncover the secrets. Leave your mark.</p>
+                  <h1>Beyond the southern shore</h1>
+                  <p>
+                    Follow the trail inland as each solved clue reveals another
+                    stretch of the island.
+                  </p>
                 </div>
                 <button
                   className="outline-button guide-button"
@@ -445,7 +454,9 @@ export default function Expedition({
                       <small> treasures</small>
                     </strong>
                   </div>
-                  <span className="stat-detail">Little pieces of history</span>
+                  <span className="stat-detail">
+                    Recorded in your collection
+                  </span>
                 </div>
                 <div className="stat">
                   <span className="stat-icon lavender">
@@ -471,15 +482,15 @@ export default function Expedition({
                   <div className="map-title">
                     <span className="chapter">01</span>
                     <div>
-                      <h2>The Lost Island</h2>
+                      <h2>Chart of the Lost Island</h2>
                       <p>
-                        Six checkpoints. Countless secrets. One unforgettable
-                        expedition.
+                        The dotted trail follows the route from the landing to
+                        the northern treasury.
                       </p>
                     </div>
                   </div>
                   <span className="region-pill">
-                    <span /> EXPEDITION ONE
+                    <span /> SURVEY No. 01
                   </span>
                 </div>
                 <IslandMap
@@ -560,11 +571,10 @@ export default function Expedition({
                     <BookOpen size={13} /> FIELD NOTE NO. 01
                   </span>
                   <p>
-                    “The real treasure?
-                    <br />
-                    What you discover along the way.”
+                    The forest gives way to stone ruins where the river turns
+                    toward the mountains.
                   </p>
-                  <span>Keep your eyes open, explorer.</span>
+                  <span>From the island survey notes</span>
                 </div>
               </section>
             </>
@@ -572,18 +582,20 @@ export default function Expedition({
           {tab === "collection" ? (
             <>
               <PageHeading
-                eyebrow="YOUR CABINET OF CURIOSITIES"
-                title="Every treasure tells a story."
-                text="Keep your discoveries, find something rare, or trade with a fellow explorer."
+                eyebrow="ARTIFACT REGISTER"
+                title="The specimen cabinet"
+                text="Your recovered artifacts are catalogued here, where you can keep them or set aside duplicates for a trade."
               />
               <div className="pack-banner">
-                <div className="pack-icon">🎒</div>
+                <div className="pack-icon">
+                  <TreasureArt kind="satchel" />
+                </div>
                 <div>
                   <span className="eyebrow">THE EXPLORER’S SATCHEL</span>
-                  <h2>A little mystery. A new discovery.</h2>
+                  <h2>The sealed field satchel</h2>
                   <p>
-                    Open a pack for one random treasure. Collect duplicates to
-                    trade.
+                    A satchel contains one unknown artifact and costs 100 coins
+                    earned from solving clues.
                   </p>
                   <details>
                     <summary>See drop chances</summary>
@@ -609,7 +621,7 @@ export default function Expedition({
                 </span>
               </div>
               <div className="treasure-grid">
-                {treasures.map((t) => {
+                {treasures.map((t, index) => {
                   const quantity =
                     inventory.find((i) => i.treasure_id === t.id)?.quantity ??
                     0;
@@ -617,16 +629,13 @@ export default function Expedition({
                     <article
                       key={t.id}
                       className={`treasure-card ${quantity ? "owned" : "undiscovered"}`}
+                      data-specimen={`0${index + 1}`}
                     >
                       <span className={`rarity ${t.rarity.toLowerCase()}`}>
                         {t.rarity}
                       </span>
-                      <div className="treasure-emoji">
-                        {quantity ? (
-                          t.icon
-                        ) : (
-                          <LockKeyhole size={42} strokeWidth={1} />
-                        )}
+                      <div className="treasure-illustration">
+                        <TreasureArt kind={t.id} />
                       </div>
                       <h3>{t.name}</h3>
                       <p>{t.description}</p>
@@ -647,9 +656,9 @@ export default function Expedition({
           {tab === "leaderboard" ? (
             <>
               <PageHeading
-                eyebrow="GREAT MINDS. GRAND ADVENTURES."
-                title="The hall of explorers."
-                text="Meet the top 10 puzzle solvers at every checkpoint. There’s room for your name."
+                eyebrow="EXPEDITION RECORDS"
+                title="The explorers’ register"
+                text="The register records the ten highest scores for each checkpoint, with earlier discoveries breaking a tie."
               />
               <div className="board-layout">
                 <section className="panel leaderboard">
@@ -687,9 +696,7 @@ export default function Expedition({
                             <tr key={r.username}>
                               <td>
                                 <span className={`rank rank-${i + 1}`}>
-                                  {i === 0
-                                    ? "♛"
-                                    : String(i + 1).padStart(2, "0")}
+                                  {String(i + 1).padStart(2, "0")}
                                 </span>
                               </td>
                               <td>
@@ -714,10 +721,10 @@ export default function Expedition({
                   ) : !rankings.length ? (
                     <div className="empty-state">
                       <Trophy size={38} strokeWidth={1} />
-                      <h3>History is waiting to be written.</h3>
+                      <h3>No scores have been recorded yet</h3>
                       <p>
-                        No discoveries here yet. Be the first to solve this
-                        checkpoint.
+                        Complete this checkpoint while signed in to add your
+                        score to the register.
                       </p>
                       <button
                         className="button"
@@ -732,8 +739,10 @@ export default function Expedition({
                   ) : null}
                 </section>
                 <aside className="panel scoring-note">
-                  <span className="big-medal">🏆</span>
-                  <h2>Make your mark.</h2>
+                  <div className="register-illustration">
+                    <TreasureArt kind="seal" />
+                  </div>
+                  <h2>How the register works</h2>
                   <p>Complete a checkpoint to appear on its leaderboard.</p>
                   <ul>
                     <li>Start with 250 × the checkpoint number.</li>
@@ -741,11 +750,18 @@ export default function Expedition({
                       Each incorrect answer takes off 25 points, down to a
                       minimum of 100.
                     </li>
-                    <li>Tied scores? The earlier discovery wins.</li>
-                    <li>Scores are saved once. Every discovery counts.</li>
+                    <li>
+                      When scores are tied, the earlier discovery is listed
+                      first.
+                    </li>
+                    <li>
+                      Each checkpoint records your score on its first successful
+                      solve.
+                    </li>
                   </ul>
                   <p>
-                    Only explorer names appear here. Your email stays private.
+                    The public register shows your explorer name while keeping
+                    your email private.
                   </p>
                   {!profile ? (
                     <button
@@ -755,7 +771,7 @@ export default function Expedition({
                         setAuthOpen(true);
                       }}
                     >
-                      Start your story <ArrowRight size={15} />
+                      Create an explorer account <ArrowRight size={15} />
                     </button>
                   ) : null}
                 </aside>
@@ -765,16 +781,16 @@ export default function Expedition({
           {tab === "trades" ? (
             <>
               <PageHeading
-                eyebrow="GOOD FINDS. GREAT EXCHANGES."
-                title="The trading post."
-                text="One explorer’s extra treasure is another explorer’s next great find."
+                eyebrow="EXCHANGE LEDGER"
+                title="The trading post"
+                text="Browse other explorers’ offers or exchange a duplicate for an artifact missing from your cabinet."
               />
               <section className="panel trade-form">
                 <div>
-                  <h2>Put a treasure on the table.</h2>
+                  <h2>Record an offer</h2>
                   <p>
-                    Trade one treasure for another. Your offer is held safely
-                    until traded or cancelled.
+                    The artifact you offer is reserved until another explorer
+                    accepts the exchange or you cancel it.
                   </p>
                 </div>
                 <form
@@ -791,7 +807,7 @@ export default function Expedition({
                     >
                       {treasures.map((t) => (
                         <option key={t.id} value={t.id}>
-                          {t.icon} {t.name} (
+                          {t.name} (
                           {inventory.find((i) => i.treasure_id === t.id)
                             ?.quantity ?? 0}
                           )
@@ -808,7 +824,7 @@ export default function Expedition({
                     >
                       {treasures.map((t) => (
                         <option key={t.id} value={t.id}>
-                          {t.icon} {t.name}
+                          {t.name}
                         </option>
                       ))}
                     </select>
@@ -836,12 +852,12 @@ export default function Expedition({
                       <span className="eyebrow">{t.username} IS TRADING</span>
                       <div className="trade-items">
                         <div>
-                          <span>{offer.icon}</span>
+                          <TreasureArt kind={offer.id} />
                           <strong>{offer.name}</strong>
                         </div>
                         <ArrowDownUp size={20} />
                         <div>
-                          <span>{want.icon}</span>
+                          <TreasureArt kind={want.id} />
                           <strong>{want.name}</strong>
                         </div>
                       </div>
@@ -878,12 +894,8 @@ export default function Expedition({
             </>
           ) : null}
           <footer className="page-footer">
-            <span>
-              <Compass size={14} /> Curiosity is your compass.
-            </span>
-            <span>
-              Treasure Expedition <span>·</span> Let the adventure unfold.
-            </span>
+            <span>Island survey · Edition I</span>
+            <span>Progress is saved to your explorer account.</span>
           </footer>
         </div>
       </main>
@@ -908,18 +920,18 @@ export default function Expedition({
               <div className="modal-symbol">
                 <Compass size={34} />
               </div>
-              <div className="eyebrow">YOUR ADVENTURE STARTS HERE</div>
+              <div className="eyebrow">EXPLORER ACCOUNT</div>
               <h2>
                 {signedIn
                   ? "Choose your explorer name"
                   : signUp
-                    ? "Join the expedition."
+                    ? "Sign up or log in."
                     : "Welcome back, explorer."}
               </h2>
               <p>
                 {signedIn
-                  ? "This name appears on leaderboards and trades. Use a nickname, not your real name."
-                  : "Save your journey, collect treasures, and make your mark on the leaderboard."}
+                  ? "Choose a nickname that you are comfortable displaying on leaderboards and trade offers."
+                  : "An explorer account keeps your progress, recovered artifacts, and scores together."}
               </p>
               <form className="auth-form" onSubmit={authenticate}>
                 {signUp || signedIn ? (
@@ -935,7 +947,8 @@ export default function Expedition({
                       autoComplete="nickname"
                     />
                     <small>
-                      3–20 letters, numbers, or underscores. Choose a nickname.
+                      Your nickname can use 3–20 letters, numbers, or
+                      underscores.
                     </small>
                   </label>
                 ) : null}
@@ -1007,7 +1020,7 @@ export default function Expedition({
               </div>
               {status === "completed" ? (
                 <div className="discovery-result">
-                  <span>{treasures.find((t) => t.id === cp.reward)?.icon}</span>
+                  <TreasureArt kind={cp.reward} />
                   <h3>Treasure discovered!</h3>
                   <p>
                     {progress.find((p) => p.checkpoint === selected)?.score}{" "}
@@ -1064,7 +1077,7 @@ export default function Expedition({
                     onClick={() => setHint(!hint)}
                   >
                     <HelpCircle size={15} />
-                    {hint ? "Hide hint" : "A little help? Show a hint"}
+                    {hint ? "Hide hint" : "Show a hint"}
                   </button>
                   {hint ? <p className="hint">{cp.hint}</p> : null}
                   <small className="puzzle-footnote">
@@ -1078,53 +1091,54 @@ export default function Expedition({
           {helpOpen ? (
             <>
               <span className="eyebrow">THE EXPLORER’S GUIDE</span>
-              <h2>A map. A mystery. You.</h2>
+              <h2>Reading the field journal</h2>
               <div className="guide-steps">
                 <div>
                   <span>01</span>
                   <section>
-                    <h3>Make a name for yourself.</h3>
+                    <h3>Your explorer account</h3>
                     <p>
-                      Sign up and choose an explorer nickname. We’ll save your
-                      discoveries as you go.
+                      When you sign up and choose an explorer nickname, your
+                      discoveries are saved as you travel across the island.
                     </p>
                   </section>
                 </div>
                 <div>
                   <span>02</span>
                   <section>
-                    <h3>Follow the trail.</h3>
+                    <h3>Following the route</h3>
                     <p>
-                      Start at The Landing. Each solved puzzle unlocks the next
-                      checkpoint. The clues get trickier along the way.
+                      Begin at The Landing and solve its clue to reach the
+                      forest, then continue along the route as the puzzles grow
+                      harder.
                     </p>
                   </section>
                 </div>
                 <div>
                   <span>03</span>
                   <section>
-                    <h3>Build your collection.</h3>
+                    <h3>Recording your discoveries</h3>
                     <p>
-                      Every first solve earns a treasure and 100 coins. Spend
-                      100 coins on a surprise pack, or swap treasures at the
-                      trading post.
+                      Each checkpoint rewards your first successful solve with a
+                      treasure and 100 coins, which you can spend on a sealed
+                      satchel while keeping any duplicates for the trading post.
                     </p>
                   </section>
                 </div>
                 <div>
                   <span>04</span>
                   <section>
-                    <h3>Leave your mark.</h3>
+                    <h3>Adding a score to the register</h3>
                     <p>
-                      The top 10 scores at each checkpoint appear in the hall of
-                      explorers. Fewer wrong answers mean more points. Hints are
-                      free!
+                      The ten highest scores for each checkpoint appear in the
+                      public register, where fewer incorrect attempts earn more
+                      points and hints carry no penalty.
                     </p>
                   </section>
                 </div>
               </div>
               <button className="button" onClick={closeModal}>
-                Adventure awaits <ArrowRight size={16} />
+                Return to the map <ArrowRight size={16} />
               </button>
             </>
           ) : null}
@@ -1134,7 +1148,9 @@ export default function Expedition({
                 return (
                   <div className="pack-reveal">
                     <span className="eyebrow">A NEW DISCOVERY</span>
-                    <div className="reveal-emoji">{t.icon}</div>
+                    <div className="reveal-illustration">
+                      <TreasureArt kind={t.id} />
+                    </div>
                     <span className={`rarity ${t.rarity.toLowerCase()}`}>
                       {t.rarity}
                     </span>

@@ -1,0 +1,975 @@
+/* Typography and materials for the island survey journal. */
+:root {
+  --paper: #f2ecdc;
+  --ink: #303c2f;
+  --muted: #797b64;
+  --line: #cfc5a9;
+  --orange: #975133;
+  --sage: #50674e;
+  --serif: "IM Fell English", Georgia, serif;
+  --annotation: "Special Elite", monospace;
+}
+body {
+  background-color: var(--paper);
+  background-image: radial-gradient(#7563420c 0.6px, transparent 0.8px);
+  background-size: 5px 7px;
+  font-size: 15px;
+}
+.sidebar {
+  background: #243d35;
+  color: #eee3c3;
+  border-right: 5px double #69745b;
+  padding-top: 31px;
+}
+.brand {
+  font-size: 28px;
+  line-height: 1.05;
+}
+.brand-mark {
+  color: #c3a56e;
+}
+.sidebar-caption {
+  font-family: var(--annotation);
+  font-size: 9px;
+  letter-spacing: 0.7px;
+  color: #aeb39b;
+  margin-bottom: 27px;
+}
+.nav-item {
+  font-size: 15px;
+  border-radius: 0;
+  color: #bfc7b0;
+  padding: 13px 12px;
+}
+.nav-item.active {
+  color: #f4e6bf;
+  background: #ffffff0a;
+  border-left: 2px solid #bd9d61;
+}
+.nav-item:hover {
+  background: #ffffff08;
+}
+.nav-item svg {
+  opacity: 0.7;
+  stroke-width: 1.3;
+}
+.sidebar-note {
+  padding-top: 25px;
+  margin-bottom: 24px;
+}
+.journal-drawing {
+  margin: 0 auto;
+  width: 125px;
+  height: 125px;
+  filter: sepia(0.25);
+  opacity: 0.85;
+}
+.sidebar-note p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.5;
+  color: #b8bda2;
+  padding: 0 10px;
+  margin: 12px 0 21px;
+}
+.note-line {
+  border-color: #6a765d;
+}
+.help-link {
+  font-size: 13px;
+  color: #bcc6ae;
+}
+.sidebar-user {
+  border-color: #6a765d;
+  padding-block: 20px;
+}
+.sidebar-user strong {
+  font-size: 13px;
+}
+.sidebar-user small {
+  font-size: 11px;
+  color: #a3b097;
+}
+.avatar {
+  background: #354f40;
+  color: #e4d3a5;
+  border-color: #788064;
+}
+.sidebar-user .icon-button {
+  color: #bcc6ae;
+}
+.topbar {
+  height: 65px;
+  background: transparent;
+  border-bottom: 1px solid #cec6ae;
+}
+.breadcrumb {
+  font-size: 12px;
+  color: #7a806b;
+}
+.breadcrumb strong {
+  color: #465740;
+}
+.top-actions > .button {
+  background: transparent;
+  border-color: #9b977f;
+  color: #42533f;
+  border-radius: 0;
+  font-family: var(--annotation);
+  font-size: 10px;
+}
+.coin-count {
+  font-family: var(--annotation);
+  font-size: 12px;
+}
+.page-content {
+  padding-top: 31px;
+}
+.page-heading {
+  align-items: end;
+  margin-bottom: 24px;
+}
+.eyebrow {
+  font-family: var(--annotation);
+  font-weight: 400;
+  letter-spacing: 1.1px;
+  font-size: 10px;
+  color: #8a714c;
+}
+.eyebrow > span:first-child:empty {
+  display: none;
+}
+h1 {
+  font-size: 51px;
+  letter-spacing: -1px;
+  line-height: 1.08;
+  margin: 11px 0 13px;
+}
+.page-heading p {
+  font-size: 17px;
+  line-height: 1.6;
+  color: #6f765f;
+  max-width: 640px;
+}
+.guide-button {
+  font-family: var(--annotation);
+  font-size: 10px;
+  background: transparent;
+  border-radius: 0;
+  border-color: #aaa58a;
+  margin-bottom: 5px;
+}
+.stats-row {
+  padding: 13px 0;
+  background: none;
+  border: 0;
+  border-top: 1px solid #c7bda0;
+  border-bottom: 3px double #c7bda0;
+  border-radius: 0;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-bottom: 23px;
+}
+.stat {
+  min-height: 42px;
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 0 19px;
+  flex-wrap: nowrap;
+}
+.stat:first-child {
+  padding-left: 0;
+}
+.stat + .stat {
+  border-color: #c9c0a6;
+}
+.stat-icon {
+  display: none;
+}
+.stat > div {
+  display: flex;
+  align-items: baseline;
+  gap: 11px;
+  flex-wrap: wrap;
+}
+.stat > div > span {
+  font-size: 13px;
+  color: #7c806b;
+}
+.stat strong {
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 400;
+  margin: 0;
+  white-space: nowrap;
+}
+.stat strong small {
+  font-family: "Alegreya", Georgia, serif;
+  font-size: 12px;
+  color: #7d8067;
+}
+.stat-detail {
+  display: none;
+}
+.stat-link {
+  font-size: 11px;
+  max-width: 105px;
+  margin: 0 0 0 auto;
+  color: #8c603e;
+  align-self: center;
+  line-height: 1.25;
+  text-align: left;
+}
+.button {
+  border-radius: 1px;
+  font-size: 13px;
+  background: #835236;
+  border-color: #835236;
+  padding: 12px 18px;
+  box-shadow: inset 0 0 0 2px #dfc89622;
+}
+.button:hover {
+  background: #6a452f;
+}
+.outline-button {
+  border-radius: 0;
+  font-size: 12px;
+  background: #ede6d4;
+  border-color: #bcb296;
+}
+.map-card {
+  border: 4px double #a89e7b;
+  border-radius: 1px;
+  background: #ece4ce;
+  box-shadow: 2px 4px 0 #79633c0a;
+}
+.map-card-header {
+  padding: 16px 22px;
+}
+.map-title h2 {
+  font-size: 29px;
+}
+.map-title p {
+  font-size: 13px;
+  color: #7e8065;
+  line-height: 1.5;
+}
+.chapter {
+  font-family: var(--serif);
+  font-size: 37px;
+  color: #928462;
+  border-color: #bdb290;
+}
+.region-pill {
+  font-family: var(--annotation);
+  font-size: 8px;
+  letter-spacing: 0.5px;
+  border: 1px solid #b7ad8f;
+  border-radius: 0;
+  color: #7e7d5e;
+  background: transparent;
+}
+.island-map {
+  height: 460px;
+  border-color: #acae8c;
+  background: #d7ddc7;
+}
+.island-art {
+  filter: sepia(0.16) saturate(0.8);
+}
+.island-art text {
+  font-family: var(--serif);
+}
+.pin-circle {
+  border-color: #eee2ba;
+  background: #94613a;
+  box-shadow: 0 2px 4px #3c442b25;
+}
+.map-pin.locked .pin-circle {
+  border-color: #d8d5b6;
+  background: #919c7c;
+  color: #e8e7d1;
+}
+.map-pin.available .pin-circle {
+  box-shadow:
+    0 0 0 5px #90542d17,
+    0 2px 4px #3c442b25;
+}
+.pin-label {
+  border-radius: 0;
+  background: #eee3c5f2;
+  border-color: #afa781;
+  font-size: 11px;
+  box-shadow: none;
+  color: #43523b;
+  font-family: var(--serif);
+}
+.pin-label small {
+  font-family: var(--annotation);
+  font-size: 8px;
+}
+.map-pin.locked .pin-label {
+  background: #dddcc5e8;
+  color: #687358;
+  border-color: #a6ad8a;
+}
+.here-label {
+  font-family: var(--annotation);
+  font-size: 7px;
+}
+.map-footer {
+  font-size: 11px;
+  padding: 13px 20px;
+  color: #727b60;
+}
+.legend {
+  gap: 20px;
+}
+.map-footer > span {
+  font-size: 11px;
+}
+.checkpoint-card {
+  background: #eee7d3;
+  border: 0;
+  border-top: 1px solid #c5b995;
+  border-bottom: 1px solid #c5b995;
+  border-radius: 0;
+  padding: 22px 0;
+}
+.checkpoint-emblem {
+  background: transparent;
+  border: 1px solid #b7a77a;
+  border-radius: 50%;
+  color: #967c44;
+  width: 52px;
+  height: 52px;
+}
+.checkpoint-info h3 {
+  font-size: 29px;
+}
+.checkpoint-info p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #767c60;
+}
+.checkpoint-info .eyebrow {
+  font-size: 9px;
+}
+.checkpoint-meta {
+  font-size: 11px;
+  gap: 14px;
+  color: #7a795d;
+}
+.status-pill {
+  border: 0;
+  border-radius: 0;
+  background: none !important;
+  font-size: 10px;
+}
+.checkpoint-card > .button {
+  font-size: 12px;
+  padding: 12px 15px;
+}
+.field-note {
+  border-color: #c5b995;
+  padding-left: 23px;
+}
+.field-note .eyebrow {
+  font-size: 8px;
+}
+.field-note p {
+  font-size: 21px;
+  line-height: 1.45;
+  color: #6c775b;
+  font-style: italic;
+}
+.field-note > span:last-child {
+  font-family: var(--annotation);
+  font-size: 8px;
+  color: #8a896c;
+}
+.page-footer {
+  font-family: var(--annotation);
+  font-size: 8px;
+  color: #868a72;
+  padding-block: 25px;
+}
+.page-footer > span:last-child {
+  color: #868a72;
+}
+.panel {
+  background: #efe9d8;
+  border-radius: 1px;
+  border-color: #c4b99c;
+}
+.pack-banner {
+  background: #e8dfc5;
+  border: 4px double #b5a681;
+  border-radius: 0;
+  padding: 26px;
+  gap: 23px;
+}
+.pack-icon {
+  width: 140px;
+  flex-shrink: 0;
+}
+.specimen-art {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.pack-banner h2 {
+  font-size: 34px;
+}
+.pack-banner p {
+  font-size: 15px;
+  color: #6f7358;
+}
+.pack-banner details {
+  font-size: 12px;
+  color: #776e4b;
+}
+.pack-banner details p {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.section-label {
+  border-bottom: 1px solid #bfb393;
+  padding-bottom: 12px;
+}
+.section-label h2 {
+  font-size: 30px;
+}
+.section-label > span {
+  font-size: 13px;
+  color: #797d60;
+}
+.treasure-grid {
+  gap: 0;
+  border-top: 1px solid #c1b594;
+  border-left: 1px solid #c1b594;
+}
+.treasure-card {
+  position: relative;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #c1b594;
+  border-right: 1px solid #c1b594;
+  border-radius: 0;
+  padding: 24px;
+}
+.treasure-card::before {
+  content: "SPECIMEN / " attr(data-specimen);
+  font-family: var(--annotation);
+  font-size: 8px;
+  color: #8c886b;
+  position: absolute;
+  right: 18px;
+  top: 27px;
+  letter-spacing: 0.8px;
+}
+.treasure-illustration {
+  height: 190px;
+  background: none;
+  display: grid;
+  place-items: center;
+}
+.treasure-illustration .specimen-art {
+  width: 170px;
+  height: 170px;
+}
+.treasure-card h3 {
+  font-size: 28px;
+}
+.treasure-card > p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #72795e;
+  min-height: 46px;
+}
+.undiscovered {
+  background: #ebe6d455;
+}
+.undiscovered .specimen-art {
+  opacity: 0.34;
+  filter: grayscale(1);
+}
+.undiscovered h3 {
+  color: #6d775c;
+}
+.rarity {
+  border-radius: 0;
+  font-family: var(--annotation);
+  font-size: 8px;
+  border: 0;
+  background: transparent !important;
+  color: #6c785b;
+  padding: 4px 0;
+}
+.rarity.legendary {
+  color: #99783d;
+}
+.rarity.rare {
+  color: #647e7c;
+}
+.treasure-bottom {
+  font-size: 12px;
+  border-color: #c7bea3;
+  color: #7f8267;
+}
+.register-illustration {
+  width: 125px;
+  margin: 0 auto;
+}
+.panel-header h2 {
+  font-size: 28px;
+}
+.panel-header {
+  border-color: #c7bea3;
+}
+.level-select select {
+  font-size: 12px;
+  background: #eee8d5;
+  border-color: #bfb596;
+  border-radius: 0;
+}
+.leaderboard table {
+  font-size: 14px;
+}
+.leaderboard th {
+  font-family: var(--annotation);
+  font-size: 9px;
+  background: #e4ddc6;
+  color: #797b5e;
+}
+.leaderboard td {
+  border-color: #c9bfa2;
+}
+.rank {
+  font-family: var(--annotation);
+  font-size: 13px;
+}
+.rank-1 {
+  font-size: 15px;
+  color: #917039;
+}
+.table-avatar {
+  border-radius: 0;
+  background: none;
+  border: 1px solid #adab8b;
+}
+.scoring-note h2 {
+  font-size: 28px;
+}
+.scoring-note p,
+.scoring-note li {
+  font-size: 14px;
+  color: #737b60;
+}
+.empty-state > svg {
+  display: none;
+}
+.empty-state h3 {
+  font-size: 29px;
+}
+.empty-state p {
+  font-size: 15px;
+  color: #7b8065;
+}
+.trade-form h2 {
+  font-size: 30px;
+}
+.trade-form p {
+  font-size: 15px;
+  color: #777c62;
+}
+.trade-form select {
+  font-size: 14px;
+}
+.trade-form label {
+  font-size: 14px;
+}
+.trade-card {
+  border-radius: 0;
+}
+.trade-items .specimen-art {
+  width: 90px;
+  height: 90px;
+}
+.trade-items strong {
+  font-size: 14px;
+}
+.trade-card > .eyebrow {
+  font-size: 9px;
+}
+.text-button {
+  font-size: 13px;
+}
+.notice {
+  font-size: 14px;
+  border-radius: 0;
+}
+.modal {
+  background: #f2ebd7;
+  border: 4px double #b1a17e;
+  border-radius: 2px;
+}
+.modal h2 {
+  font-size: 37px;
+}
+.modal h2 + p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #71785d;
+}
+.modal label {
+  font-size: 15px;
+}
+.modal label small {
+  font-size: 12px;
+}
+.modal input,
+.modal select {
+  border-radius: 0;
+  background: #faf4e3;
+  border-color: #bfb493;
+  font-size: 16px;
+}
+.auth-switch {
+  font-size: 14px;
+  color: #816340;
+}
+.puzzle-clue {
+  border-radius: 0;
+  background: #e6ddc1;
+  border-color: #baae8b;
+}
+.puzzle-clue > p {
+  font-family: "Alegreya", Georgia, serif;
+  font-size: 20px;
+}
+.hint {
+  font-size: 15px;
+  background: #e9e0c5;
+  color: #767257;
+  border-radius: 0;
+}
+.puzzle-footnote {
+  font-size: 12px;
+  color: #8a8265;
+}
+.discovery-result > .specimen-art {
+  width: 150px;
+  height: 150px;
+  margin: 12px auto;
+}
+.discovery-result p {
+  font-size: 15px;
+}
+.guide-steps p {
+  font-size: 15px;
+  color: #72795d;
+}
+.guide-steps h3 {
+  font-size: 25px;
+}
+.reveal-illustration > .specimen-art {
+  width: 225px;
+  height: 225px;
+  margin: 20px auto;
+  animation: reveal 0.6s ease-out;
+}
+.pack-reveal p {
+  font-size: 15px;
+  color: #747b60;
+}
+@media (min-width: 1600px) {
+  .island-map {
+    height: 540px;
+  }
+}
+@media (max-width: 1200px) {
+  .map-title p {
+    max-width: 420px;
+  }
+  .stat {
+    padding-inline: 12px;
+  }
+  .stat > div {
+    gap: 5px;
+  }
+  .stat-link {
+    font-size: 10px;
+  }
+  .island-map {
+    height: 410px;
+  }
+  .field-note {
+    display: none;
+  }
+}
+@media (max-width: 950px) {
+  h1 {
+    font-size: 43px;
+  }
+  .page-heading p {
+    font-size: 16px;
+  }
+  .stat > div {
+    display: block;
+  }
+  .stat > div > span {
+    font-size: 11px;
+  }
+  .stat strong {
+    font-size: 27px;
+  }
+  .stat-link {
+    max-width: 80px;
+    font-size: 10px;
+  }
+  .map-title p {
+    font-size: 12px;
+  }
+  .map-title h2 {
+    font-size: 26px;
+  }
+  .pin-label {
+    font-size: 10px;
+  }
+  .map-footer {
+    font-size: 10px;
+  }
+  .pack-banner {
+    gap: 15px;
+  }
+  .pack-icon {
+    width: 100px;
+  }
+  .treasure-illustration {
+    height: 170px;
+  }
+  .treasure-illustration .specimen-art {
+    width: 150px;
+    height: 150px;
+  }
+  .checkpoint-card > .button {
+    margin-left: 65px;
+  }
+}
+@media (max-width: 650px) {
+  .topbar {
+    height: 65px;
+    background: #f2ecdcef;
+    padding-inline: 17px;
+  }
+  .breadcrumb strong {
+    font-size: 12px;
+  }
+  .icon-button.mobile-menu {
+    color: #536244;
+  }
+  .top-actions > .button {
+    font-size: 9px;
+    padding: 10px;
+  }
+  .page-content {
+    padding: 26px 17px 0;
+  }
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.6px;
+  }
+  h1 {
+    font-size: 40px;
+    max-width: 330px;
+    margin-bottom: 12px;
+    line-height: 1.1;
+  }
+  .page-heading p {
+    font-size: 16px;
+    line-height: 1.55;
+    max-width: 340px;
+  }
+  .page-heading {
+    margin-bottom: 23px;
+  }
+  .stats-row {
+    padding-block: 10px;
+    margin-bottom: 20px;
+  }
+  .stat {
+    display: block;
+    padding-inline: 10px;
+  }
+  .stat > div > span {
+    font-size: 10px;
+    line-height: 1.25;
+  }
+  .stat strong {
+    font-size: 25px;
+    margin-top: 5px;
+  }
+  .stat strong small {
+    font-size: 10px;
+  }
+  .stat-link {
+    font-size: 9px;
+    margin: 4px 0 0;
+    max-width: 100%;
+  }
+  .map-card-header {
+    padding: 13px 11px;
+  }
+  .map-title h2 {
+    font-size: 24px;
+  }
+  .map-title p {
+    font-size: 11px;
+    max-width: 245px;
+  }
+  .chapter {
+    font-size: 30px;
+  }
+  .island-map {
+    height: 400px;
+  }
+  .pin-label {
+    font-size: 9px;
+    padding: 5px;
+  }
+  .map-footer {
+    padding: 12px 10px;
+    font-size: 9px;
+  }
+  .legend {
+    gap: 9px;
+  }
+  .checkpoint-card {
+    padding: 20px 0;
+    gap: 11px;
+  }
+  .checkpoint-info h3 {
+    font-size: 28px;
+  }
+  .checkpoint-info p {
+    font-size: 14px;
+  }
+  .checkpoint-info .eyebrow {
+    font-size: 8px;
+  }
+  .checkpoint-emblem {
+    width: 43px;
+    height: 43px;
+  }
+  .checkpoint-meta {
+    font-size: 10px;
+    gap: 10px;
+  }
+  .checkpoint-card > .button {
+    margin: 10px 0 0;
+    width: 100%;
+    font-size: 13px;
+  }
+  .pack-banner {
+    padding: 20px;
+  }
+  .pack-icon {
+    width: 85px;
+  }
+  .pack-banner > .button {
+    width: 100%;
+  }
+  .pack-banner .eyebrow {
+    font-size: 8px;
+  }
+  .pack-banner h2 {
+    font-size: 30px;
+  }
+  .pack-banner p {
+    font-size: 14px;
+  }
+  .pack-banner details p {
+    font-size: 12px;
+  }
+  .treasure-card {
+    padding: 17px 14px;
+  }
+  .treasure-card::before {
+    display: none;
+  }
+  .treasure-card h3 {
+    font-size: 25px;
+  }
+  .treasure-card > p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .treasure-illustration {
+    height: 145px;
+  }
+  .treasure-illustration .specimen-art {
+    width: 130px;
+    height: 130px;
+  }
+  .treasure-bottom {
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  .section-label h2 {
+    font-size: 27px;
+  }
+  .section-label > span {
+    font-size: 12px;
+  }
+  .panel-header {
+    padding: 17px 12px;
+  }
+  .panel-header h2 {
+    font-size: 25px;
+  }
+  .level-select select {
+    font-size: 11px;
+    max-width: 185px;
+  }
+  .leaderboard table {
+    font-size: 12px;
+  }
+  .leaderboard td {
+    font-size: 12px;
+  }
+  .leaderboard th {
+    font-size: 8px;
+  }
+  .empty-state h3 {
+    font-size: 28px;
+  }
+  .empty-state p {
+    font-size: 15px;
+  }
+  .modal-inner {
+    padding: 33px 23px;
+  }
+  .modal h2 {
+    font-size: 34px;
+  }
+  .modal h2 + p {
+    font-size: 16px;
+  }
+  .puzzle-clue > p {
+    font-size: 19px;
+  }
+  .trade-form p {
+    font-size: 14px;
+  }
+  .page-footer {
+    font-size: 8px;
+  }
+  .sidebar .sidebar-user strong {
+    font-size: 13px;
+  }
+  .sidebar .sidebar-user small {
+    font-size: 11px;
+  }
+}

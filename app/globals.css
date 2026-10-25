@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;450;500;550;600;650;700&family=Libre+Caslon+Display&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Alegreya:wght@400;500;600;700&family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap");
 :root {
   --paper: #faf9f5;
   --ink: #2e382e;
@@ -6,7 +6,7 @@
   --line: #e6e5dc;
   --orange: #b9653e;
   --sage: #5e7462;
-  --serif: "Libre Caslon Display", Georgia, serif;
+  --serif: "IM Fell English", Georgia, serif;
 }
 * {
   box-sizing: border-box;
@@ -15,7 +15,7 @@ body {
   margin: 0;
   color: var(--ink);
   background: var(--paper);
-  font-family: "DM Sans", Arial, sans-serif;
+  font-family: "Alegreya", Georgia, serif;
   font-size: 13px;
 }
 button,
@@ -833,7 +833,7 @@ h1 {
   background: #eaf2e9;
   border-color: #d5e3d3;
 }
-.treasure-emoji {
+.treasure-illustration {
   display: grid;
   place-items: center;
   height: 130px;
@@ -1256,7 +1256,7 @@ label small {
 .pack-reveal .eyebrow {
   justify-content: center;
 }
-.reveal-emoji {
+.reveal-illustration {
   font-size: 100px;
   margin: 30px 0;
   filter: drop-shadow(0 6px 14px #baa25630);
@@ -1731,7 +1731,7 @@ label small {
   .treasure-bottom {
     font-size: 8px;
   }
-  .treasure-emoji {
+  .treasure-illustration {
     height: 100px;
     font-size: 48px;
   }
