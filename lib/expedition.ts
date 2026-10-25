@@ -1,93 +1,12 @@
-export const checkpoints = [
-  {
-    id: 1,
-    name: "The Landing",
-    subtitle: "A riddle left near the landing marks the way inland.",
-    area: "Sunwashed shore",
-    difficulty: "Beginner",
-    kind: "Riddle",
-    prompt:
-      "I have a face and two hands, but no arms or legs. I help explorers arrive on time. What am I?",
-    hint: "You might find me on a wall or on your wrist.",
-    reward: "compass",
-    x: 18,
-    y: 70,
-  },
-  {
-    id: 2,
-    name: "Whispering Woods",
-    subtitle:
-      "A sequence carved into the trees marks the route through the forest.",
-    area: "Emerald forest",
-    difficulty: "Easy",
-    kind: "Number pattern",
-    prompt:
-      "Carved into five trees are the numbers 3, 7, 15, 31, ?. What number belongs on the last tree?",
-    hint: "Double each number, then add one.",
-    reward: "scarab",
-    x: 34,
-    y: 47,
-  },
-  {
-    id: 3,
-    name: "The Sunken Ruins",
-    subtitle: "A coded inscription survives inside the flooded temple.",
-    area: "Forgotten temple",
-    difficulty: "Medium",
-    kind: "Cipher",
-    prompt:
-      "A stone reads: WUHDVXUH. Each letter was shifted 3 places forward in the alphabet (A became D). Decode the word.",
-    hint: "Move each letter back three places. W becomes T.",
-    reward: "vase",
-    x: 51,
-    y: 66,
-  },
-  {
-    id: 4,
-    name: "Serpent Pass",
-    subtitle:
-      "The trail narrows beside three chests whose labels cannot be trusted.",
-    area: "Mountain trail",
-    difficulty: "Tricky",
-    kind: "Logic",
-    prompt:
-      "Three chests are labeled GOLD, SILVER, and MIXED. Every label is wrong. You draw a gold coin from the chest labeled MIXED. What does that chest actually contain: gold, silver, or mixed?",
-    hint: "The chest labeled MIXED cannot contain a mix.",
-    reward: "gem",
-    x: 63,
-    y: 36,
-  },
-  {
-    id: 5,
-    name: "The Moon Observatory",
-    subtitle:
-      "An inscription beside the moon gate describes a three-digit code.",
-    area: "Celestial summit",
-    difficulty: "Hard",
-    kind: "Number puzzle",
-    prompt:
-      "A moon gate needs a 3-digit code. The digits add up to 15. The hundreds digit is twice the tens digit. The ones digit is 3 more than the tens digit. What is the code?",
-    hint: "Let the tens digit be x: 2x + x + (x + 3) = 15.",
-    reward: "moon",
-    x: 78,
-    y: 54,
-  },
-  {
-    id: 6,
-    name: "The Lost Treasury",
-    subtitle:
-      "The last inscription guards the entrance to the island’s treasury.",
-    area: "Heart of the island",
-    difficulty: "Expert",
-    kind: "Final cipher",
-    prompt:
-      "The treasury uses A=1, B=2, … Z=26. The numbers 19–5–3–18–5–20 spell a word. Reverse that word, then tell us its third letter.",
-    hint: "Decode the word first. Write it backwards carefully.",
-    reward: "crown",
-    x: 84,
-    y: 22,
-  },
-] as const;
+export {
+  checkpoints,
+  regions,
+  TOTAL_CHECKPOINTS,
+  pinStates,
+  baseScore,
+  coinReward,
+} from "./route-data.ts";
+export type { Checkpoint } from "./route-data.ts";
 export const treasures = [
   {
     id: "compass",
@@ -151,8 +70,10 @@ export function stateFor(id: number, progress: Progress[]) {
   const current = progress.find((p) => p.checkpoint === id);
   if (current?.completed_at) return "completed";
   if (
-    id > 1 &&
-    !progress.some((p) => p.checkpoint === id - 1 && p.completed_at)
+    Array.from({ length: id - 1 }, (_, i) => i + 1).some(
+      (previous) =>
+        !progress.some((p) => p.checkpoint === previous && p.completed_at),
+    )
   )
     return "locked";
   return current?.attempts ? "attempted" : "available";

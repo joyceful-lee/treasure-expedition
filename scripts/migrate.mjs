@@ -1,10 +1,13 @@
 import { neon } from "@neondatabase/serverless";
 import { readFile } from "node:fs/promises";
 const sql = neon(process.env.DATABASE_URL);
-const source = await readFile(
-  new URL("../db/schema.sql", import.meta.url),
-  "utf8",
-);
+const source = (
+  await Promise.all(
+    ["schema.sql", "route-v2.sql"].map((file) =>
+      readFile(new URL(`../db/${file}`, import.meta.url), "utf8"),
+    ),
+  )
+).join("\n");
 const statements = [];
 let buffer = "";
 let inFunction = false;

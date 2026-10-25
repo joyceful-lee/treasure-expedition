@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./journal.css";
+import "./route.css";
 export const metadata: Metadata = {
   title: "Treasure Expedition · The island survey",
   description:

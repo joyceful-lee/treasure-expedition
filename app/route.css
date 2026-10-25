@@ -1,0 +1,597 @@
+.route-regions {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(135px, 1fr));
+  overflow-x: auto;
+  border-block: 1px solid #bdb393;
+  background: #e6dfc8;
+}
+.route-regions button {
+  padding: 13px 12px;
+  text-align: left;
+  border-right: 1px solid #c8bfa4;
+  min-width: 135px;
+}
+.route-regions button:hover,
+.route-regions button:focus-visible {
+  background: #d6d3b9;
+}
+.route-regions strong {
+  display: block;
+  font: 17px var(--serif);
+  font-weight: 400;
+}
+.route-regions span {
+  font-size: 12px;
+  color: #777b5f;
+  display: block;
+  margin-top: 6px;
+}
+.route-map-help {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: #72785e;
+}
+.route-map-help .text-button {
+  white-space: nowrap;
+}
+.route-scroll {
+  height: 600px !important;
+  max-height: 600px;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  scrollbar-color: #8c9478 #dedcc5;
+  touch-action: pan-x pan-y;
+}
+.route-canvas {
+  position: relative;
+  width: 100%;
+  min-width: 1000px;
+  height: 600px;
+}
+.route-scroll .island-art {
+  width: 100% !important;
+  left: 0 !important;
+  top: 0;
+  height: 100%;
+}
+.route-canvas .map-pin {
+  left: var(--pin-x) !important;
+  top: var(--pin-y) !important;
+  min-width: 36px;
+  min-height: 36px;
+  justify-content: center;
+  z-index: 3;
+}
+.route-canvas .map-pin .pin-circle {
+  background: var(--pin-color) !important;
+  color: #fff8e5 !important;
+  width: 27px;
+  height: 27px;
+  border: 2px solid #e7dfbd;
+  font:
+    600 13px "Alegreya",
+    Georgia,
+    serif;
+  box-shadow: 0 1px 4px #34442d35 !important;
+}
+.route-canvas .map-pin.major .pin-circle {
+  height: 43px;
+  width: 43px;
+  border: 5px double #ede1bb;
+  font-size: 18px;
+}
+.route-canvas .map-pin .pin-label {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  max-width: 210px;
+  white-space: normal;
+  min-width: max-content;
+  pointer-events: none;
+  box-shadow: 0 2px 6px #33442a1c;
+}
+.route-canvas .map-pin.selected,
+.route-canvas .map-pin:hover,
+.route-canvas .map-pin:focus-visible {
+  z-index: 5;
+}
+.route-canvas .map-pin.selected .pin-label,
+.route-canvas .map-pin:hover .pin-label,
+.route-canvas .map-pin:focus-visible .pin-label {
+  display: block;
+}
+.route-canvas .map-pin:focus-visible .pin-circle {
+  outline: 2px solid #303e2c;
+  outline-offset: 2px;
+}
+.map-footer {
+  flex-wrap: wrap;
+}
+.legend i {
+  width: 10px;
+  height: 10px;
+}
+.checkpoint-details > p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #72795f;
+}
+.checkpoint-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 0;
+  margin-top: 14px;
+  border-block: 1px solid #c7bda0;
+  font-size: 14px;
+}
+.checkpoint-detail-meta .status-pill {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0;
+  text-transform: capitalize;
+}
+.checkpoint-detail-meta .available {
+  color: #975133;
+}
+.checkpoint-detail-meta .attempted {
+  color: #856216;
+}
+.checkpoint-detail-meta .completed {
+  color: #365c43;
+}
+.checkpoint-detail-meta .locked {
+  color: #666d64;
+}
+.checkpoint-details .major-description {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-top: 18px;
+  font-size: 15px;
+}
+.major-description svg {
+  margin-top: 5px;
+}
+.checkpoint-rewards {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 15px 0;
+}
+.checkpoint-rewards > .specimen-art {
+  width: 110px;
+  height: 110px;
+  flex-shrink: 0;
+}
+.checkpoint-rewards strong {
+  display: block;
+  font: 23px var(--serif);
+  margin-bottom: 8px;
+}
+.checkpoint-rewards span {
+  display: block;
+  font-size: 15px;
+}
+.checkpoint-rewards small {
+  display: block;
+  font-size: 12px;
+  color: #83856d;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.checkpoint-details .locked-explanation {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 15px;
+  margin: 0 0 20px;
+}
+.locked-explanation svg {
+  margin-top: 4px;
+}
+.checkpoint-details > .button {
+  width: 100%;
+  margin-top: 15px;
+}
+.next-available {
+  display: block;
+  margin: 20px auto 0;
+}
+.modal:has(.interactive-challenge) {
+  width: min(760px, calc(100% - 24px));
+}
+.interactive-challenge {
+  display: grid;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+.interactive-challenge label {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.interactive-challenge input[type="range"] {
+  padding: 0;
+  accent-color: #85613c;
+}
+.engraving-table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #bdb18c;
+  background: #e2d8b8;
+}
+.engraving-table span {
+  padding: 10px 13px;
+  border-bottom: 1px solid #c3b796;
+  text-transform: capitalize;
+  font-size: 15px;
+}
+.engraving-table strong {
+  float: right;
+  font-weight: 500;
+  font-family: var(--annotation);
+}
+.reliquary-clues {
+  display: grid;
+  gap: 19px;
+}
+.reliquary-clues label {
+  grid-template-columns: minmax(0, 1fr) 150px;
+  gap: 20px;
+  align-items: center;
+}
+.reliquary-clues select {
+  text-transform: capitalize;
+  font-size: 14px;
+}
+.magic-square {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  max-width: 410px;
+  width: 100%;
+  margin: auto;
+}
+.magic-square input {
+  font-family: var(--serif);
+  font-size: 30px;
+  text-align: center;
+  min-width: 0;
+  width: 100%;
+  padding: 12px 4px;
+  aspect-ratio: 1;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.magic-square input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.magic-square input.engraved {
+  background: #c9c9a8;
+  color: #3a4d38;
+  border-color: #8b9875;
+}
+.mechanism-note {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #7e8065;
+}
+.decoded-inscription {
+  display: block;
+  text-align: center;
+  border: 4px double #a99e77;
+  padding: 20px 10px;
+  font-family: var(--annotation);
+  font-size: 20px;
+  letter-spacing: 2px;
+  background: #e8dfc4;
+  overflow-wrap: anywhere;
+}
+.inscription-list {
+  margin: 0;
+  padding-left: 22px;
+  color: #637357;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.inscription-list li {
+  margin-bottom: 7px;
+}
+.order-field {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.order-field legend {
+  font: 25px var(--serif);
+  margin-bottom: 13px;
+}
+.order-tiles {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  padding: 0;
+  margin: 0 0 13px;
+}
+.order-tiles li {
+  position: relative;
+  border: 1px solid #a9a083;
+  background: #ddd6b9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 6px 7px;
+}
+.tile-position {
+  font-family: var(--annotation);
+  font-size: 9px;
+  color: #897b57;
+  align-self: flex-start;
+}
+.token-mark {
+  height: 42px;
+  width: 42px;
+  color: #566c4e;
+  margin: 6px 0;
+}
+.order-tiles strong {
+  font-size: 15px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.order-tiles li > div {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 9px;
+}
+.order-tiles button {
+  font-family: Georgia, serif;
+  border: 1px solid #9a9879;
+  background: #eae3c9;
+  min-height: 32px;
+  min-width: 32px;
+  font-size: 19px;
+}
+.order-field small {
+  font-size: 13px;
+  color: #7e8065;
+  line-height: 1.6;
+  display: block;
+}
+.bearing-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  border-block: 1px solid #bcb28f;
+  padding: 12px 0;
+  margin: 0;
+}
+.bearing-strip span {
+  font-family: var(--annotation);
+  font-size: 11px;
+  border-right: 1px solid #b9b18d;
+  padding-right: 8px;
+}
+.star-chart {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #e4ddc0;
+  border-top: 1px solid #9fa381;
+  border-left: 1px solid #9fa381;
+  max-width: 480px;
+  width: 100%;
+  margin: auto;
+}
+.star-chart > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+.star-cell {
+  position: relative;
+  aspect-ratio: 1;
+  border-bottom: 1px solid #9fa381;
+  border-right: 1px solid #9fa381;
+  padding: 8px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 3;
+}
+.star-cell small {
+  font: 9px var(--annotation);
+  color: #8a8766;
+}
+.star-cell strong {
+  font: 26px var(--serif);
+  color: #455e43;
+  background: #e4ddc0b0;
+  padding: 0 3px;
+}
+.star-cell.start {
+  background: #b7c1a545;
+}
+.star-cell.visited {
+  outline: 2px solid #9d6937;
+  outline-offset: -4px;
+}
+.star-cell > span {
+  font: 10px var(--annotation);
+  color: #975133;
+  min-height: 12px;
+}
+.mechanism-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #797d62;
+}
+.vault-stage {
+  padding-bottom: 20px;
+  border-bottom: 1px solid #c7b99a;
+}
+.vault-stage h3 {
+  font: 26px var(--serif);
+  margin-bottom: 12px;
+}
+.vault-stage p {
+  font-size: 16px;
+  line-height: 1.7;
+  color: #6e795e;
+  margin-bottom: 17px;
+}
+.number-rings {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 390px;
+  margin: auto;
+}
+.number-rings label {
+  font-size: 13px;
+  text-align: center;
+}
+.number-rings input {
+  font: 42px var(--serif);
+  text-align: center;
+  border: 4px double #968e6c;
+  padding: 12px 4px;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.number-rings input::-webkit-inner-spin-button {
+  appearance: none;
+}
+.number-rings > div > div {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 8px;
+}
+.number-rings button {
+  border: 1px solid #a39a7a;
+  min-height: 34px;
+  flex: 1;
+  font-size: 20px;
+}
+.challenge-vault .order-tiles {
+  grid-template-columns: repeat(3, 1fr);
+}
+@media (max-width: 650px) {
+  .route-regions {
+    grid-template-columns: repeat(6, 145px);
+  }
+  .route-regions button {
+    padding: 11px;
+  }
+  .route-regions strong {
+    font-size: 16px;
+  }
+  .route-map-help {
+    padding: 11px 13px;
+    align-items: flex-start;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .route-map-help > span {
+    max-width: 210px;
+  }
+  .route-map-help .text-button {
+    font-size: 11px;
+    line-height: 1.6;
+  }
+  .route-scroll {
+    height: 480px !important;
+    max-height: 480px;
+  }
+  .route-canvas .map-pin .pin-circle {
+    font-size: 13px;
+  }
+  .route-canvas .map-pin.major .pin-circle {
+    font-size: 18px;
+  }
+  .legend {
+    gap: 13px;
+  }
+  .checkpoint-rewards {
+    gap: 13px;
+  }
+  .checkpoint-rewards > .specimen-art {
+    width: 85px;
+    height: 85px;
+  }
+  .checkpoint-rewards strong {
+    font-size: 22px;
+  }
+  .checkpoint-rewards span {
+    font-size: 14px;
+  }
+  .checkpoint-rewards small {
+    font-size: 12px;
+  }
+  .reliquary-clues label {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+  .reliquary-clues select {
+    width: 100%;
+  }
+  .engraving-table span {
+    font-size: 13px;
+    padding: 9px;
+  }
+  .magic-square input {
+    font-size: 25px;
+  }
+  .decoded-inscription {
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+  .order-tiles {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 9px;
+  }
+  .challenge-vault .order-tiles {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .number-rings {
+    gap: 10px;
+  }
+  .number-rings input {
+    font-size: 35px;
+  }
+  .star-cell strong {
+    font-size: 22px;
+  }
+  .star-cell small {
+    font-size: 8px;
+  }
+  .star-cell {
+    padding: 6px 1px;
+  }
+  .star-cell > span {
+    font-size: 8px;
+  }
+  .interactive-challenge {
+    gap: 17px;
+  }
+}

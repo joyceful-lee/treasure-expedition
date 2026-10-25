@@ -24,6 +24,10 @@ import {
 import { authClient } from "@/lib/auth-client";
 import {
   checkpoints,
+  regions,
+  TOTAL_CHECKPOINTS,
+  pinStates,
+  coinReward,
   treasures,
   stateFor,
   type Profile,
@@ -33,6 +37,8 @@ import {
 } from "@/lib/expedition";
 import IslandMap from "./island-map";
 import TreasureArt from "./treasure-art";
+import CheckpointDetails from "./checkpoint-details";
+import InteractiveChallenge from "./interactive-challenge";
 type Tab = "map" | "collection" | "trades" | "leaderboard";
 const paths: Record<Tab, string> = {
   map: "/",
@@ -53,7 +59,10 @@ async function api(url: string, body?: Record<string, unknown>) {
       : undefined,
   );
   const data = await r.json();
-  if (!r.ok) throw new Error(data.error || "That action could not be saved; please try again.");
+  if (!r.ok)
+    throw new Error(
+      data.error || "That action could not be saved; please try again.",
+    );
   return data;
 }
 const navigation = [
@@ -77,6 +86,7 @@ export default function Expedition({
   const [authOpen, setAuthOpen] = useState(false);
   const [signUp, setSignUp] = useState(true);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
   const [hint, setHint] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
@@ -96,7 +106,11 @@ export default function Expedition({
   const totalScore = progress.reduce((sum, p) => sum + p.score, 0);
   const cp = checkpoints[selected - 1];
   const status = stateFor(selected, progress);
-  const modal = authOpen || puzzleOpen || helpOpen || !!packReward;
+  const nextAvailable = checkpoints.find((c) =>
+    ["available", "attempted"].includes(stateFor(c.id, progress)),
+  )?.id;
+  const modal =
+    detailsOpen || authOpen || puzzleOpen || helpOpen || !!packReward;
   const loadGame = useCallback(async () => {
     const [session, game] = await Promise.all([
       authClient.getSession(),
@@ -155,7 +169,17 @@ export default function Expedition({
     if (tab === "trades") loadTrades().catch((e) => setError(e.message));
     return () => controller.abort();
   }, [tab, level, loadTrades]);
+  function inspectCheckpoint(id: number) {
+    setSelected(id);
+    setDetailsOpen(true);
+    setPuzzleOpen(false);
+    setAnswer("");
+    setHint(false);
+    setMessage("");
+    setError("");
+  }
   function closeModal() {
+    setDetailsOpen(false);
     setAuthOpen(false);
     setPuzzleOpen(false);
     setHelpOpen(false);
@@ -243,7 +267,7 @@ export default function Expedition({
         setMessage(
           result.alreadyCompleted
             ? "You already discovered this treasure."
-            : `Checkpoint complete! +${result.score} points, +100 coins, and a new treasure.`,
+            : `Checkpoint complete! +${result.score} points, +${result.coins} coins, and a new treasure.`,
         );
       } else
         setMessage(
@@ -274,6 +298,8 @@ export default function Expedition({
     });
   }
   function startPuzzle() {
+    setDetailsOpen(false);
+    if (status === "locked") return;
     if (!requireProfile()) return;
     setAnswer("");
     setHint(false);
@@ -434,11 +460,11 @@ export default function Expedition({
                     <span>Checkpoints completed</span>
                     <strong>
                       {completed}
-                      <small> / 6</small>
+                      <small> / {TOTAL_CHECKPOINTS}</small>
                     </strong>
                   </div>
                   <span className="stat-detail">
-                    {completed === 6
+                    {completed === TOTAL_CHECKPOINTS
                       ? "Island explored!"
                       : "Your journey so far"}
                   </span>
@@ -484,8 +510,8 @@ export default function Expedition({
                     <div>
                       <h2>Chart of the Lost Island</h2>
                       <p>
-                        The dotted trail follows the route from the landing to
-                        the northern treasury.
+                        Follow 60 checkpoints through six regions, from the
+                        landing to the northern treasury.
                       </p>
                     </div>
                   </div>
@@ -496,85 +522,24 @@ export default function Expedition({
                 <IslandMap
                   progress={progress}
                   selected={selected}
-                  onSelect={setSelected}
+                  onSelect={inspectCheckpoint}
                 />
                 <div className="map-footer">
                   <div className="legend">
-                    <span>
-                      <i className="available" /> Available
-                    </span>
-                    <span>
-                      <i className="attempted" /> Attempted
-                    </span>
-                    <span>
-                      <i className="completed" /> Completed
-                    </span>
-                    <span>
-                      <i className="locked" /> Locked
-                    </span>
+                    {pinStates.map((state) => (
+                      <span key={state.id}>
+                        <i
+                          className={state.id}
+                          style={{ backgroundColor: state.color }}
+                        />{" "}
+                        {state.label}
+                      </span>
+                    ))}
                   </div>
                   <span>
                     <LockKeyhole size={13} /> Solve a checkpoint to unlock the
                     next
                   </span>
-                </div>
-              </section>
-              <section className="below-map">
-                <div className="checkpoint-card">
-                  <div className="checkpoint-emblem">
-                    <Flag size={27} />
-                  </div>
-                  <div className="checkpoint-info">
-                    <div className="eyebrow">
-                      {status === "locked"
-                        ? "A SECRET AHEAD"
-                        : status === "completed"
-                          ? "DISCOVERY MADE"
-                          : "YOUR NEXT CHECKPOINT"}{" "}
-                      <span className={`status-pill ${status}`}>{status}</span>
-                    </div>
-                    <h3>{cp.name}</h3>
-                    <p>{cp.subtitle}</p>
-                    <div className="checkpoint-meta">
-                      <span>
-                        <Sparkles size={12} /> {cp.difficulty}
-                      </span>
-                      <span>{cp.kind}</span>
-                      <span>
-                        <Gem size={12} /> 1 treasure + 100 coins
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    disabled={loading || status === "locked"}
-                    className="button"
-                    onClick={startPuzzle}
-                  >
-                    {loading
-                      ? "Loading…"
-                      : status === "locked"
-                        ? "Locked"
-                        : status === "completed"
-                          ? "View discovery"
-                          : status === "attempted"
-                            ? "Try again"
-                            : "Explore checkpoint"}
-                    {status === "locked" ? (
-                      <LockKeyhole size={16} />
-                    ) : (
-                      <ArrowRight size={16} />
-                    )}
-                  </button>
-                </div>
-                <div className="field-note">
-                  <span className="eyebrow">
-                    <BookOpen size={13} /> FIELD NOTE NO. 01
-                  </span>
-                  <p>
-                    The forest gives way to stone ruins where the river turns
-                    toward the mountains.
-                  </p>
-                  <span>From the island survey notes</span>
                 </div>
               </section>
             </>
@@ -672,10 +637,19 @@ export default function Expedition({
                         value={level}
                         onChange={(e) => setLevel(Number(e.target.value))}
                       >
-                        {checkpoints.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            0{c.id} · {c.name}
-                          </option>
+                        {regions.map((region, index) => (
+                          <optgroup
+                            key={region.name}
+                            label={`${region.name} · ${region.theme}`}
+                          >
+                            {checkpoints
+                              .filter((c) => c.region === index)
+                              .map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {String(c.id).padStart(2, "0")} · {c.name}
+                                </option>
+                              ))}
+                          </optgroup>
                         ))}
                       </select>
                       <ChevronDown size={14} />
@@ -745,7 +719,10 @@ export default function Expedition({
                   <h2>How the register works</h2>
                   <p>Complete a checkpoint to appear on its leaderboard.</p>
                   <ul>
-                    <li>Start with 250 × the checkpoint number.</li>
+                    <li>
+                      Scores increase within each region, with a 1,000-point
+                      bonus for every tenth checkpoint.
+                    </li>
                     <li>
                       Each incorrect answer takes off 25 points, down to a
                       minimum of 100.
@@ -902,6 +879,15 @@ export default function Expedition({
       <dialog
         ref={dialogRef}
         className="modal"
+        aria-label={
+          detailsOpen || puzzleOpen
+            ? `Checkpoint ${selected}: ${cp.name}`
+            : authOpen
+              ? "Explorer account"
+              : helpOpen
+                ? "How to play"
+                : "Treasure discovery"
+        }
         onCancel={closeModal}
         onClick={(e) => {
           if (e.target === e.currentTarget) closeModal();
@@ -915,6 +901,19 @@ export default function Expedition({
           >
             <X size={21} />
           </button>
+          {detailsOpen ? (
+            <CheckpointDetails
+              checkpoint={cp}
+              status={status}
+              progress={progress}
+              loading={loading}
+              onStart={startPuzzle}
+              nextAvailable={nextAvailable}
+              onNextAvailable={() =>
+                nextAvailable && inspectCheckpoint(nextAvailable)
+              }
+            />
+          ) : null}
           {authOpen ? (
             <>
               <div className="modal-symbol">
@@ -1010,7 +1009,8 @@ export default function Expedition({
           {puzzleOpen ? (
             <>
               <span className="eyebrow">
-                CHECKPOINT 0{selected} · {cp.difficulty.toUpperCase()}
+                CHECKPOINT {String(selected).padStart(2, "0")} ·{" "}
+                {cp.difficulty.toUpperCase()}
               </span>
               <h2>{cp.name}</h2>
               <p>{cp.subtitle}</p>
@@ -1026,11 +1026,11 @@ export default function Expedition({
                     {progress.find((p) => p.checkpoint === selected)?.score}{" "}
                     points recorded in your journal.
                   </p>
-                  {selected < 6 ? (
+                  {selected < TOTAL_CHECKPOINTS ? (
                     <button
                       className="button"
                       onClick={() => {
-                        setSelected(selected + 1);
+                        inspectCheckpoint(selected + 1);
                         setAnswer("");
                         setHint(false);
                         setMessage("");
@@ -1053,17 +1053,29 @@ export default function Expedition({
               ) : (
                 <>
                   <form className="answer-form" onSubmit={submitAnswer}>
-                    <label>
-                      Your answer
-                      <input
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                        maxLength={200}
-                        required
-                        placeholder="Follow your curiosity…"
-                        autoComplete="off"
+                    {cp.challenge ? (
+                      <InteractiveChallenge
+                        key={cp.id}
+                        checkpoint={cp}
+                        onAnswer={setAnswer}
+                        disabled={busy}
                       />
-                    </label>
+                    ) : (
+                      <>
+                        {" "}
+                        <label>
+                          Your answer
+                          <input
+                            value={answer}
+                            onChange={(e) => setAnswer(e.target.value)}
+                            maxLength={200}
+                            required
+                            placeholder="Follow your curiosity…"
+                            autoComplete="off"
+                          />
+                        </label>
+                      </>
+                    )}
                     <button
                       className="button"
                       disabled={busy || !answer.trim()}
@@ -1081,8 +1093,8 @@ export default function Expedition({
                   </button>
                   {hint ? <p className="hint">{cp.hint}</p> : null}
                   <small className="puzzle-footnote">
-                    Correct answer: 1 treasure + 100 coins. Each miss costs 25
-                    score points.
+                    A correct answer earns one treasure and {coinReward(cp.id)}{" "}
+                    coins. Each incorrect attempt subtracts 25 score points.
                   </small>
                 </>
               )}
@@ -1108,9 +1120,9 @@ export default function Expedition({
                   <section>
                     <h3>Following the route</h3>
                     <p>
-                      Begin at The Landing and solve its clue to reach the
-                      forest, then continue along the route as the puzzles grow
-                      harder.
+                      Each region contains nine themed puzzles and a major
+                      interactive challenge. Follow all 60 numbered pins in
+                      order, selecting any pin to read its details.
                     </p>
                   </section>
                 </div>
@@ -1120,8 +1132,9 @@ export default function Expedition({
                     <h3>Recording your discoveries</h3>
                     <p>
                       Each checkpoint rewards your first successful solve with a
-                      treasure and 100 coins, which you can spend on a sealed
-                      satchel while keeping any duplicates for the trading post.
+                      treasure and 100 coins, while major challenges earn 300
+                      coins. Spend your coins on sealed satchels and keep
+                      duplicates for the trading post.
                     </p>
                   </section>
                 </div>

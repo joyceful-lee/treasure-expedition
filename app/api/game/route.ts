@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isCorrect } from "@/lib/puzzles";
+import { TOTAL_CHECKPOINTS } from "@/lib/route-data";
 export const dynamic = "force-dynamic";
 export async function GET() {
   try {
@@ -12,7 +13,7 @@ export async function GET() {
     const uid = session.user.id;
     const [profiles, progress, inventory] = await Promise.all([
       sql`SELECT id,username,coins FROM expedition.users WHERE id=${uid}`,
-      sql`SELECT checkpoint,attempts,completed_at,score FROM expedition.progress WHERE user_id=${uid}`,
+      sql`SELECT checkpoint,attempts,completed_at,score FROM expedition.route_progress WHERE user_id=${uid}`,
       sql`SELECT treasure_id,quantity FROM expedition.inventory WHERE user_id=${uid} AND quantity>0`,
     ]);
     return NextResponse.json({
@@ -60,16 +61,16 @@ export async function POST(request: NextRequest) {
       if (
         !Number.isInteger(body.checkpoint) ||
         body.checkpoint < 1 ||
-        body.checkpoint > 6 ||
+        body.checkpoint > TOTAL_CHECKPOINTS ||
         typeof body.answer !== "string" ||
-        body.answer.length > 200
+        body.answer.length > 512
       )
         return NextResponse.json(
           { error: "Enter a valid answer." },
           { status: 400 },
         );
       const rows =
-        await sql`SELECT expedition.submit_answer(${uid}::uuid,${body.checkpoint}::integer,${isCorrect(body.checkpoint, body.answer)}::boolean) AS result`;
+        await sql`SELECT expedition.submit_route_answer(${uid}::uuid,${body.checkpoint}::integer,${isCorrect(body.checkpoint, body.answer)}::boolean) AS result`;
       return NextResponse.json(rows[0].result);
     }
     if (body.action === "pack") {

@@ -4,13 +4,14 @@ A treasure-map puzzle adventure for middle and high-school explorers. Built with
 
 ## Features
 
-- Six progressively harder checkpoints with locked → available → attempted → completed states.
+- 60 themed checkpoints across six regions with locked → available → attempted → completed states.
 - Neon email/password signup and login, plus unique public explorer nicknames.
 - Server-checked answers, persistent progress, and first-solve rewards.
 - Public top 10 leaderboard for each checkpoint, joined to the users table; emails remain private.
 - Six collectible treasures, 100-coin surprise packs with visible drop chances, and a trading post.
 - Atomic trade escrow, acceptance, cancellation, coin spending, and reward grants in Postgres functions.
-- Responsive illustrated island, keyboard-accessible dialogs, free hints, and clear instructions.
+- Scrollable illustrated island with checkpoint detail pop-ups, region shortcuts, keyboard-accessible dialogs, and free hints.
+- Six extreme interactive finales: a riddle reliquary, magic square, cipher rotors, ordered bridge plates, rotated star chart, and a three-part vault.
 
 ## Local development
 
@@ -63,7 +64,9 @@ npm run build
 
 `db/verify.sql` runs database integration checks in an intentionally rolled-back subtransaction: sequential unlocks, wrong attempts, score penalties, rewards only once, pack coin debit, trade escrow, acceptance, double-accept prevention, and cancellation refunds. It leaves no test data.
 
-The scoring rule is `max(100, checkpoint × 250 − wrong attempts × 25)`. Hints have no penalty. Earlier completion breaks tied scores. Completed checkpoints cannot be farmed for more rewards. Packs cost in-game coins only, with no payment integration.
+`db/route-v2.sql` adds a separate 60-checkpoint ledger and copies the original six records to 1, 11, 21, 31, 41, and 51, preserving their attempts, timestamps, and scores. Existing coins and treasures stay intact. Every earlier checkpoint must be complete before a new attempt is allowed. Run the migration before deployment and repeat its idempotent copy after rollout. `db/verify-route.sql` checks the entire route, preserved progress gaps, finale rewards, and duplicate protection with rolled-back fixtures.
+
+The scoring rule is `max(100, region × 250 + (position − 1) × 25 + finale bonus − wrong attempts × 25)`, where regions and positions are numbered 1–6 and 1–10, and the finale bonus is 1,000. Ordinary checkpoints grant 100 coins; finales grant 300. Hints have no penalty. Earlier completion breaks tied scores. Completed checkpoints cannot be farmed for more rewards. Packs cost in-game coins only, with no payment integration.
 
 ## Implementation notes
 
