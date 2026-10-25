@@ -609,7 +609,7 @@ export default function Expedition({
                 <h2>Your collection</h2>
                 <span>
                   {inventory.filter((i) => i.quantity > 0).length} of{" "}
-                  {treasures.length}
+                  {treasures.length}{" "}
                   discovered
                 </span>
               </div>
