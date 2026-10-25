@@ -8,7 +8,7 @@ A treasure-map puzzle adventure for middle and high-school explorers. Built with
 - Neon email/password signup and login, plus unique public explorer nicknames.
 - Server-checked answers, persistent progress, and first-solve rewards.
 - Public top 10 leaderboard for each checkpoint, joined to the users table; emails remain private.
-- Six collectible treasures, 100-coin surprise packs with visible drop chances, and a trading post.
+- 24 illustrated artifacts across Common, Uncommon, Rare, Epic, and Legendary rarities; both solved checkpoints and 100-coin packs grant weighted random draws. Duplicates are tradable.
 - Atomic trade escrow, acceptance, cancellation, coin spending, and reward grants in Postgres functions.
 - Scrollable illustrated island with checkpoint detail pop-ups, region shortcuts, keyboard-accessible dialogs, and free hints.
 - Six extreme interactive finales: a riddle reliquary, magic square, cipher rotors, ordered bridge plates, rotated star chart, and a three-part vault.
@@ -73,3 +73,9 @@ The scoring rule is `max(100, region × 250 + (position − 1) × 25 + finale bo
 All mutations require a verified Neon session and same-origin POST. Answers are held in the server module `lib/puzzles.ts`; database functions serialize changes using row locks. The `expedition` schema is not exposed to browser database roles. Public APIs return only leaderboard nicknames/scores and active trade offers. Never put the connection string or cookie secret in `NEXT_PUBLIC_` variables.
 
 The map is drawn locally in SVG. Fonts use Google Fonts with local serif/sans-serif fallbacks. No paid assets or image APIs are needed.
+
+## Artifact rewards and score refresh
+
+`db/artifacts-v3.sql` adds the weighted catalog and a new artifact ledger alongside the original inventory. The `all_inventory` and `all_trades` views combine existing and new records, so existing collections and open offers are preserved without copying or replacing player data. New trade functions can spend either ledger and settle old offers. New checkpoint completions atomically save the score, completion time, and drawn artifact ID before granting coins and inventory. Replaying a completed checkpoint never rerolls its reward.
+
+Rarity rates are Common 60%, Uncommon 24%, Rare 12%, Epic 3%, and Legendary 1%. The 24 positive integer weights total 400. Public scores bypass caching and refresh every 15 seconds while visible, on window focus, and after the player returns from completing a checkpoint. `db/verify-artifacts.sql` exercises all 60 completions, joined leaderboard records, replay protection, pack debit, legacy and new trades, and escrow refunds with rolled-back fixtures.

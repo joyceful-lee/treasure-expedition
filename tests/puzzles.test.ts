@@ -12,8 +12,8 @@ import {
 import { shiftText } from "../lib/challenges.ts";
 const bosses: Record<number, object> = {
   10: {
-    objects: ["map", "candle", "echo", "key", "book", "clock"],
-    code: "324",
+    objects: ["mirror", "sponge", "needle", "towel", "comb", "river"],
+    code: "856",
   },
   20: { cells: [16, 3, 2, 13, 5, 10, 11, 8, 9, 6, 7, 12, 4, 15, 14, 1] },
   30: { outer: 7, inner: 5, word: "NWAD" },
@@ -102,7 +102,7 @@ test("each interactive challenge requires its complete correct mechanism", () =>
     false,
   );
   assert.equal(
-    isCorrect(10, JSON.stringify({ objects: ["map"], code: "324" })),
+    isCorrect(10, JSON.stringify({ objects: ["map"], code: "856" })),
     false,
   );
   assert.equal(

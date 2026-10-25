@@ -5,6 +5,7 @@ import {
   regions,
   type Checkpoint,
 } from "@/lib/route-data";
+import { treasures } from "@/lib/artifacts";
 import type { Progress } from "@/lib/expedition";
 import TreasureArt from "./treasure-art";
 export default function CheckpointDetails({
@@ -45,12 +46,20 @@ export default function CheckpointDetails({
         </p>
       ) : null}
       <div className="checkpoint-rewards">
-        <TreasureArt kind={cp.reward} />
+        <TreasureArt
+          kind={
+            record?.completed_at ? (record.treasure_id ?? cp.reward) : "satchel"
+          }
+        />
         <div>
           <strong>{baseScore(cp.id).toLocaleString()} starting points</strong>
           <span>
-            1 {cp.reward === "vase" ? "amphora" : cp.reward} treasure +{" "}
-            {coinReward(cp.id)} coins
+            {record?.completed_at
+              ? treasures.find(
+                  (t) => t.id === (record.treasure_id ?? cp.reward),
+                )?.name
+              : "1 random artifact"}{" "}
+            + {coinReward(cp.id)} coins
           </span>
           <small>
             Each incorrect attempt subtracts 25 points, down to a minimum of

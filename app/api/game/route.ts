@@ -13,8 +13,8 @@ export async function GET() {
     const uid = session.user.id;
     const [profiles, progress, inventory] = await Promise.all([
       sql`SELECT id,username,coins FROM expedition.users WHERE id=${uid}`,
-      sql`SELECT checkpoint,attempts,completed_at,score FROM expedition.route_progress WHERE user_id=${uid}`,
-      sql`SELECT treasure_id,quantity FROM expedition.inventory WHERE user_id=${uid} AND quantity>0`,
+      sql`SELECT checkpoint,attempts,completed_at,score,treasure_id FROM expedition.route_progress WHERE user_id=${uid}`,
+      sql`SELECT treasure_id,quantity FROM expedition.all_inventory WHERE user_id=${uid} AND quantity>0`,
     ]);
     return NextResponse.json({
       profile: profiles[0] ?? null,
@@ -70,12 +70,12 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       const rows =
-        await sql`SELECT expedition.submit_route_answer(${uid}::uuid,${body.checkpoint}::integer,${isCorrect(body.checkpoint, body.answer)}::boolean) AS result`;
+        await sql`SELECT expedition.submit_artifact_answer(${uid}::uuid,${body.checkpoint}::integer,${isCorrect(body.checkpoint, body.answer)}::boolean) AS result`;
       return NextResponse.json(rows[0].result);
     }
     if (body.action === "pack") {
       const rows =
-        await sql`SELECT expedition.open_pack(${uid}::uuid) AS reward`;
+        await sql`SELECT expedition.open_artifact_pack(${uid}::uuid) AS reward`;
       return NextResponse.json(rows[0]);
     }
     if (body.action === "trade") {
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
           { error: "Choose the treasures to exchange." },
           { status: 400 },
         );
-      await sql`SELECT expedition.make_trade(${uid}::uuid,${body.offered},${body.requested})`;
+      await sql`SELECT expedition.make_artifact_trade(${uid}::uuid,${body.offered},${body.requested})`;
       return NextResponse.json({ ok: true });
     }
     if (body.action === "accept" || body.action === "cancel") {
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
           { error: "Choose a valid trade." },
           { status: 400 },
         );
-      await sql`SELECT expedition.finish_trade(${uid}::uuid,${body.id}::uuid,${body.action === "cancel"}::boolean)`;
+      await sql`SELECT expedition.finish_artifact_trade(${uid}::uuid,${body.id}::uuid,${body.action === "cancel"}::boolean)`;
       return NextResponse.json({ ok: true });
     }
     return NextResponse.json(

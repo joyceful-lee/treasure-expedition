@@ -1,0 +1,396 @@
+import { useId } from "react";
+import { checkpoints } from "@/lib/route-data";
+const coastPoints = [
+  [112, 432],
+  [85, 402],
+  [72, 370],
+  [76, 348],
+  [101, 323],
+  [90, 301],
+  [123, 276],
+  [133, 238],
+  [160, 226],
+  [171, 190],
+  [205, 174],
+  [221, 137],
+  [259, 126],
+  [276, 103],
+  [322, 111],
+  [349, 87],
+  [392, 98],
+  [425, 74],
+  [472, 82],
+  [500, 60],
+  [540, 72],
+  [572, 49],
+  [613, 62],
+  [646, 40],
+  [691, 53],
+  [720, 31],
+  [758, 46],
+  [787, 29],
+  [821, 42],
+  [848, 28],
+  [877, 47],
+  [914, 54],
+  [927, 83],
+  [955, 105],
+  [944, 135],
+  [967, 161],
+  [951, 194],
+  [970, 222],
+  [951, 252],
+  [960, 283],
+  [941, 306],
+  [952, 343],
+  [927, 363],
+  [933, 391],
+  [901, 407],
+  [886, 435],
+  [846, 450],
+  [817, 440],
+  [786, 462],
+  [758, 456],
+  [731, 487],
+  [698, 497],
+  [679, 529],
+  [655, 545],
+  [626, 529],
+  [600, 550],
+  [567, 536],
+  [541, 552],
+  [504, 540],
+  [473, 553],
+  [444, 535],
+  [410, 548],
+  [381, 532],
+  [348, 546],
+  [316, 524],
+  [287, 530],
+  [263, 509],
+  [235, 514],
+  [213, 493],
+  [181, 496],
+  [163, 472],
+  [139, 467],
+];
+export const shore =
+  coastPoints
+    .map((p, i, all) => {
+      const a = all[(i + all.length - 1) % all.length],
+        b = all[(i + 1) % all.length],
+        c = all[(i + 2) % all.length];
+      return `${i === 0 ? "M" + p.join(" ") : ""} C${p[0] + (b[0] - a[0]) / 6} ${p[1] + (b[1] - a[1]) / 6},${b[0] - (c[0] - p[0]) / 6} ${b[1] - (c[1] - p[1]) / 6},${b.join(" ")}`;
+    })
+    .join(" ") + " Z";
+const clear = (x: number, y: number, r: number) =>
+  checkpoints.every(
+    (p) => Math.hypot(p.x * 10 - x, p.y * 6 - y) > r + (p.major ? 25 : 18),
+  );
+function Fir({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path d="M-13 13q13 5 26 0" stroke="#8c9172" opacity=".5" />
+      <path d="M0 13v-39" stroke="#4b604b" strokeWidth="2" />
+      <path
+        d="m0-32-9 15 4-1-10 16 8-2-11 15q18-4 36 0L7-4l8 2L5-18l4 1Z"
+        fill="#819072"
+        stroke="#53664e"
+        strokeWidth=".8"
+      />
+      <path
+        d="M0-26v33m0-18-7 8m7 0 10 9"
+        fill="none"
+        stroke="#c5c39b"
+        strokeWidth=".7"
+      />
+    </g>
+  );
+}
+function Peak({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`}>
+      <path
+        d="M-33 18-20 1 0-41 23-4 36 18q-30 6-69 0Z"
+        fill="#c6bea2"
+        stroke="#887e60"
+        strokeWidth="1.1"
+      />
+      <path d="m0-41 5 31 23 26-15-2-9-20-9-9Z" fill="#9c9f83" />
+      <path d="m-9-23 9-18 11 20-8-4-4 8-4-10Z" fill="#efe4c6" />
+      <path
+        d="m-3-9-16 24m23-22 8 19m-35-3-4 10m12-15-5 14m26-7 5 8"
+        stroke="#817a60"
+        fill="none"
+        strokeWidth=".8"
+      />
+    </g>
+  );
+}
+export default function MapArt() {
+  const id = "map" + useId().replace(/:/g, "");
+  const forest = Array.from({ length: 72 }, (_, i) => ({
+    x: 210 + (i % 9) * 24 + (Math.floor(i / 9) % 2) * 11,
+    y: 198 + Math.floor(i / 9) * 20,
+    s: 0.5 + (i % 4) * 0.09,
+  })).filter((p) => clear(p.x, p.y, 30));
+  const mountains = [
+    { x: 600, y: 174, s: 0.45 },
+    { x: 620, y: 180, s: 0.35 },
+  ];
+  return (
+    <svg
+      className="island-art"
+      viewBox="0 0 1000 600"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <clipPath id={id + "land"}>
+          <path d={shore} />
+        </clipPath>
+        <mask id={id + "mouth"}>
+          <rect width="1000" height="600" fill="white" />
+          <ellipse cx="655" cy="545" rx="15" ry="22" fill="black" />
+        </mask>
+        <pattern
+          id={id + "water"}
+          width="74"
+          height="53"
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M9 31q7-4 14 0t14 0m16-17q5-3 10 0"
+            stroke="#768e80"
+            opacity=".25"
+            fill="none"
+            strokeWidth=".7"
+          />
+        </pattern>
+        <pattern
+          id={id + "paper"}
+          width="6"
+          height="6"
+          patternUnits="userSpaceOnUse"
+        >
+          <circle cx="1" cy="2" r=".45" fill="#897a52" opacity=".15" />
+        </pattern>
+      </defs>
+      <rect width="1000" height="600" fill="#d8decb" />
+      <rect width="1000" height="600" fill={`url(#${id}water)`} />
+      <g fill="none" stroke="#8c987c" opacity=".45">
+        <path
+          d="M24 292h952M492 24v552M42 42l916 516M42 558 958 42"
+          strokeWidth=".45"
+        />
+        <rect x="18" y="18" width="964" height="564" strokeWidth=".8" />
+        <rect x="23" y="23" width="954" height="554" strokeWidth=".4" />
+        {Array.from({ length: 19 }, (_, i) => (
+          <path
+            key={i}
+            d={`M${50 + i * 50} 18v${i % 2 ? 5 : 9}m0 555v9`}
+            strokeWidth=".6"
+          />
+        ))}
+      </g>
+      <path
+        d={shore}
+        fill="none"
+        stroke="#9faf97"
+        strokeWidth="19"
+        opacity=".3"
+        mask={`url(#${id}mouth)`}
+      />
+      <path
+        d={shore}
+        fill="none"
+        stroke="#edf0d7"
+        strokeWidth="9"
+        mask={`url(#${id}mouth)`}
+      />
+      <path
+        d={shore}
+        fill="#e9d9ad"
+        stroke="#9f946d"
+        strokeWidth="1.6"
+        mask={`url(#${id}mouth)`}
+      />
+      <path d={shore} fill="#e9d9ad" clipPath={`url(#${id}land)`} />
+      <g clipPath={`url(#${id}land)`}>
+        <rect width="1000" height="600" fill={`url(#${id}paper)`} />
+        <path
+          d="M194 270q40-103 131-103 130 17 134 104-21 104-147 98-114-21-118-99Z"
+          fill="#a9b98e"
+          opacity=".29"
+        />
+        <path
+          d="M520 155q92-92 182-42 43 46 17 118-84 68-161 11Z"
+          fill="#b5b395"
+          opacity=".3"
+        />
+        <g fill="none" stroke="#ac9b72" strokeWidth=".65" opacity=".55">
+          <path d="M147 445q-61-61-20-121t54-110 89-61 115-21M164 441q-46-60-11-106t50-110 84-51M296 482q73 42 130 26t106 10M315 471q62 30 112 18m331-72q69 20 116-34t38-108M777 403q57 12 88-27m-99-297q51-17 94 8t53 62M490 136q32-45 79-30m-46 42q31-25 48-25" />
+        </g>
+        <path
+          d="M648 112q45 31 46 75t23 69q13 26-9 60t-6 68q8 43-14 73t-24 61l10 50-39 1 12-42q-4-33 15-68t13-70q-13-41 9-77t6-58q-24-40-19-69t-28-67Z"
+          fill="#a4beb1"
+        />
+        <path
+          d="M652 119q37 36 33 73t23 68q7 23-13 56t-7 68q5 44-16 74t-22 69"
+          fill="none"
+          stroke="#dce4ce"
+          strokeWidth="2"
+          opacity=".8"
+        />
+        <ellipse cx="646" cy="111" rx="14" ry="9" fill="#a4beb1" />
+        {forest
+          .sort((a, b) => a.y - b.y)
+          .map((p, i) => (
+            <Fir key={i} {...p} />
+          ))}
+        {mountains
+          .sort((a, b) => a.y - b.y)
+          .map((p, i) => (
+            <Peak key={i} {...p} />
+          ))}
+        <g stroke="#8d7d57" fill="#dbcb9e" strokeWidth="1.2">
+          <g transform="translate(136 95) scale(.6)">
+            <path d="M316 254h48v7h-48ZM322 254v-20h8v20m20 0v-20h8v20M316 234l24-17 24 17Z" />
+          </g>
+          <g transform="translate(0 -10)">
+            <path d="M480 369h61v8h-61Zm5 0v-25h8v25m14 0v-25h8v25m15 0v-25h8v25M477 344l33-18 34 18Z" />
+          </g>
+          <g transform="translate(210 24) scale(.75)">
+            <path d="M819 107h42v6h-42Zm3 0V83h9v24m18 0V83h9v24M817 83l10-12 10 12m6 0 10-12 10 12M834 107V90h12v17m-15-17 9-13 9 13Z" />
+          </g>
+        </g>
+        <g
+          transform="translate(780 275)"
+          stroke="#8b7b58"
+          fill="#ded0a9"
+          strokeWidth="1.2"
+        >
+          <path d="M-20 15h40v5h-40Zm4 0v-23h32v23M-20-8 0-23 20-8Z" />
+          <circle cy="3" r="6" fill="#8b9c8a" />
+          <path d="m-3 5 7-6" />
+        </g>
+      </g>
+      <path
+        d={shore}
+        fill="none"
+        stroke="#a7976b"
+        strokeWidth="1.1"
+        mask={`url(#${id}mouth)`}
+      />
+      <g fill="#e1d1a6" stroke="#a19770" strokeWidth="1">
+        <path d="M52 396q-17 11-12 26 16 9 28-3l-4-15ZM924 472l12-8 14 9-8 14-18-3Z" />
+        <path d="m68 462-8 7 5 6 10-5Z" />
+      </g>
+      <polyline
+        points={checkpoints.map((c) => `${c.x * 10},${c.y * 6}`).join(" ")}
+        fill="none"
+        stroke="#f2e4bd"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <polyline
+        points={checkpoints.map((c) => `${c.x * 10},${c.y * 6}`).join(" ")}
+        fill="none"
+        stroke="#8d6146"
+        strokeWidth="1.8"
+        strokeDasharray="2 6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <g
+        transform="translate(699 250) rotate(-64)"
+        stroke="#655e45"
+        fill="#bfb08b"
+      >
+        <path d="M-7-12H7v24H-7Z" />
+        <path d="M-6-8H6m-12 5H6M-6 2H6m-12 5H6" strokeWidth=".7" />
+      </g>
+      <g
+        transform="translate(91 461) rotate(-18)"
+        stroke="#8d7652"
+        strokeWidth="1.2"
+        fill="#bba779"
+      >
+        <path d="M-19 1q19 15 38 0l-5 9h-28Z" />
+        <path d="M0 0v-34L-15-3H0m4-24 12 22H4Z" fill="#f0e3bf" />
+        <path d="M-28 16q15-4 28 0t25 0" fill="none" stroke="#90a896" />
+      </g>
+      <g transform="translate(81 104)" stroke="#596c56" fill="none">
+        <circle r="31" strokeWidth=".7" />
+        <circle r="25" strokeDasharray="1 4" opacity=".65" />
+        {[0, 45, 90, 135].map((a) => (
+          <g key={a} transform={`rotate(${a})`}>
+            <path
+              d="M0-40 5 0 0 40-5 0Z"
+              fill={a % 90 ? "#bdc3a0" : "#6d8061"}
+              strokeWidth=".65"
+            />
+            <path d="M0-40v40h-5Z" fill="#f1e6c4" strokeWidth=".5" />
+          </g>
+        ))}
+        <circle r="3" fill="#b9995f" />
+        <text
+          y="-48"
+          textAnchor="middle"
+          fill="#596c56"
+          stroke="none"
+          fontSize="12"
+        >
+          N
+        </text>
+      </g>
+      <g
+        fill="#687657"
+        fontFamily="'IM Fell English',Georgia,serif"
+        fontStyle="italic"
+        letterSpacing="2"
+      >
+        <text x="226" y="159" fontSize="12">
+          Whispering Woods
+        </text>
+        <text x="510" y="92" fontSize="12">
+          Serpent Ridge
+        </text>
+        <text x="463" y="445" fontSize="11" letterSpacing="1">
+          Sunken Ruins
+        </text>
+        <text x="752" y="365" fontSize="11">
+          Moon Observatory
+        </text>
+        <text x="771" y="210" fontSize="10">
+          The Lost Treasury
+        </text>
+        <text x="47" y="553" fontSize="14" fill="#789584">
+          The Uncharted Sea
+        </text>
+        <text x="827" y="535" fontSize="12" fill="#789584">
+          Silver Tide
+        </text>
+      </g>
+      <g
+        transform="translate(875 561)"
+        stroke="#758a76"
+        fill="none"
+        strokeWidth="1"
+      >
+        <path d="M-44 0h88M-44-3v6M0-3v6m44-6v6" />
+        <text
+          y="14"
+          textAnchor="middle"
+          stroke="none"
+          fill="#758a76"
+          fontFamily="'Special Elite',monospace"
+          fontSize="8"
+        >
+          ONE DAY ON FOOT
+        </text>
+      </g>
+    </svg>
+  );
+}

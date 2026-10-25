@@ -7,54 +7,13 @@ export {
   coinReward,
 } from "./route-data.ts";
 export type { Checkpoint } from "./route-data.ts";
-export const treasures = [
-  {
-    id: "compass",
-    name: "Bronze Compass",
-    rarity: "Common",
-    description:
-      "A brass-cased compass with a worn sighting ring and a red north needle.",
-  },
-  {
-    id: "scarab",
-    name: "Jade Scarab",
-    rarity: "Uncommon",
-    description: "A carved green scarab mounted on six slender bronze legs.",
-  },
-  {
-    id: "vase",
-    name: "Painted Amphora",
-    rarity: "Uncommon",
-    description:
-      "A two-handled clay vessel with geometric bands around its shoulder.",
-  },
-  {
-    id: "gem",
-    name: "Serpent Emerald",
-    rarity: "Rare",
-    description:
-      "A cut green crystal whose pale seams follow the shape of its facets.",
-  },
-  {
-    id: "moon",
-    name: "Moonstone",
-    rarity: "Rare",
-    description:
-      "A translucent stone set into a narrow bronze base beneath a crescent mark.",
-  },
-  {
-    id: "crown",
-    name: "Sun King’s Crown",
-    rarity: "Legendary",
-    description:
-      "A hammered gold circlet set with green stone and two red cabochons.",
-  },
-] as const;
+export { treasures, rarityChances } from "./artifacts.ts";
 export type Progress = {
   checkpoint: number;
   attempts: number;
   completed_at: string | null;
   score: number;
+  treasure_id?: string | null;
 };
 export type Profile = { id: string; username: string; coins: number };
 export type Item = { treasure_id: string; quantity: number };

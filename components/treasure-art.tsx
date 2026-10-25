@@ -1,5 +1,245 @@
 import { useId } from "react";
 
+const newDrawings: Record<string, React.ReactNode> = {
+  coin: (
+    <>
+      <circle cx="80" cy="81" r="45" fill="#b68b50" />
+      <circle cx="80" cy="81" r="37" stroke="#e9d49e" strokeDasharray="2 4" />
+      <path
+        d="m80 53 10 20 22 3-16 16 4 23-20-11-20 11 4-23-16-16 22-3Z"
+        fill="#d9ba78"
+      />
+      <path d="M44 111q12 17 36 19" stroke="#e6cb8c" />
+    </>
+  ),
+  shard: (
+    <>
+      <path d="m37 54 44-28 34 20 14 58-48 31-39-21Z" fill="#8caeb3" />
+      <path d="m37 54 24 7-5 33 25 41m0-109 11 29 23-9" stroke="#d8d4af" />
+      <path
+        d="m57 68 13 8 15-15 15 9 12-10m-54 40 17-11 13 12 25-12"
+        stroke="#355e6c"
+        strokeWidth="5"
+      />
+    </>
+  ),
+  arrowhead: (
+    <>
+      <path d="m80 24 40 85-26-5v24H65v-24l-25 5Z" fill="#949b91" />
+      <path
+        d="m80 24-8 76 22 4m-50 1 28-5-7 28m15-91 19 34-22-7m-4 19 33 5"
+        stroke="#d2d3bd"
+      />
+      <path d="m80 24-15 30-4-1-6 16 2 3-12 28" stroke="#525d54" />
+    </>
+  ),
+  bead: (
+    <>
+      <path
+        d="M74 43q-35-38-46 4-9 52 49 78 49-19 55-49 5-21-17-35"
+        stroke="#a18b60"
+        strokeWidth="3"
+      />
+      <ellipse cx="80" cy="82" rx="31" ry="36" fill="#ba784e" />
+      <ellipse cx="80" cy="52" rx="9" ry="6" fill="#584739" />
+      <path d="M65 67q-12 24 5 40m11-45v44m12-35q9 14 0 28" stroke="#e0aa72" />
+      <path d="M80 34v19" stroke="#c9b887" strokeWidth="3" />
+    </>
+  ),
+  button: (
+    <>
+      <circle cx="80" cy="83" r="41" fill="#b69b64" />
+      <circle cx="80" cy="83" r="34" stroke="#e4c98e" />
+      <circle cx="80" cy="63" r="7" />
+      <path
+        d="M80 70v37m-14-27h28m-36 10q22 41 44 0l-10 4m-34-4 10 4"
+        stroke="#63583b"
+        strokeWidth="3"
+      />
+      <path d="M48 66q-7 20 0 34" stroke="#efd9a3" />
+    </>
+  ),
+  key: (
+    <>
+      <circle cx="78" cy="48" r="18" fill="#7a8174" />
+      <circle cx="78" cy="48" r="10" fill="#e6d7b2" />
+      <path d="M73 65h10v66H73Zm10 44h18v8h-9v12h-9Z" fill="#7a8174" />
+      <path d="M77 68v57m8-13h11" stroke="#c1b891" />
+      <path d="M66 35q-14-12-16 2t12 18m28-20q14-12 16 2T94 55" />
+    </>
+  ),
+  shell: (
+    <>
+      <path
+        d="M80 117Q10 98 30 54q7-17 22-7 12-27 28-8 16-19 28 8 15-10 22 7 20 44-50 63Z"
+        fill="#c5a99b"
+      />
+      <path
+        d="m80 117-28-70m28 70V39m0 78 28-70m-28 70L30 60m50 57 50-57"
+        stroke="#ede0bd"
+      />
+      <path d="M47 97q33-24 66 0-32 32-66 0Z" fill="#e5d5bd" />
+      <circle cx="80" cy="95" r="14" fill="#f2e9ce" />
+      <path d="m74 88 5-2" stroke="white" strokeWidth="3" />
+    </>
+  ),
+  lantern: (
+    <>
+      <path d="M65 38V27q15-22 30 0v11M52 49h56l-5 75H57Z" fill="#bc9148" />
+      <path d="M60 58h40v53H60Z" fill="#d7a558" />
+      <path
+        d="M71 48v66m18-66v66M58 81h44m-46 35h48M51 44l29-16 29 16Z"
+        fill="#a68045"
+      />
+      <path d="M71 102q-7-17 9-30 11 16 5 29Z" fill="#f0d18a" />
+      <path d="M54 126h52l6 7H48Z" fill="#8c714a" />
+    </>
+  ),
+  tablet: (
+    <>
+      <path d="m44 30 71 5 6 88-15 10-66-4-6-83Z" fill="#b88860" />
+      <path d="m44 30 3 90 74 3m-13-82 5 70" stroke="#ddba89" />
+      <path
+        d="m56 51 14 13 18-13 13 22-26 19-19-13m14-15 5 28m13-41 6 42m-36 17h44"
+        stroke="#765439"
+      />
+      <circle cx="70" cy="64" r="3" fill="#765439" />
+      <circle cx="88" cy="51" r="3" fill="#765439" />
+    </>
+  ),
+  astrolabe: (
+    <>
+      <path d="M71 32V21q9-12 18 0v11" stroke="#9d7b42" strokeWidth="5" />
+      <circle cx="80" cy="82" r="49" fill="#b99b58" />
+      <circle cx="80" cy="82" r="41" fill="#dfcd94" />
+      <circle cx="80" cy="82" r="33" strokeDasharray="1 4" />
+      <path
+        d="M49 105 99 49m-50 56 24-5 26-51-23 10Zm-18-9q28-38 52 0m-60 30q36-39 70-4M80 44v76M43 82h74"
+        stroke="#66765a"
+      />
+      <circle cx="80" cy="82" r="5" fill="#9d7b42" />
+    </>
+  ),
+  mask: (
+    <>
+      <path d="M40 38q40-25 80 0l-8 65-32 32-32-32Z" fill="#454e4b" />
+      <path
+        d="M49 58q15-12 28 4L56 75Zm34 4q14-16 28-4l-7 17Z"
+        fill="#7ca5a0"
+      />
+      <path
+        d="M80 57 69 91l21 1m-25 16q15 9 30 0M46 43l10 55 24 26 24-26 10-55"
+        stroke="#9b9c7d"
+      />
+      <path d="M65 115h30" stroke="#b88d59" />
+    </>
+  ),
+  dagger: (
+    <>
+      <path d="m80 17 16 75-16 18-16-18Z" fill="#a5b9ba" />
+      <path d="M80 17v93m0-78 10 57-10 9" stroke="#edf0dc" />
+      <path d="M55 100h50v8H55Zm19 8h12v28H74Z" fill="#b99a57" />
+      <path
+        d="m74 113 12 6-12 5 12 6m-15 7h18"
+        stroke="#675139"
+        strokeWidth="2"
+      />
+    </>
+  ),
+  brooch: (
+    <>
+      <path
+        d="M32 93q20-57 54-45 23-14 36 4l19 3-24 9q-9 49-53 41l-29 24 11-29Z"
+        fill="#5c9296"
+      />
+      <path d="M47 88q26-38 52-13L70 99Z" fill="#3e6c83" />
+      <path
+        d="m70 99-28 17m46-15-4 26m6-5h12M100 54h6"
+        stroke="#d9bc7b"
+        strokeWidth="2"
+      />
+      <path d="m117 59 24-4-22 11" fill="#cecbb1" />
+      <circle cx="108" cy="53" r="2" fill="#222f30" />
+    </>
+  ),
+  idol: (
+    <>
+      <path
+        d="M60 70q-17 9-21 37l18 7 4-19-4 35h46l-4-35 4 19 18-7q-4-28-21-37Z"
+        fill="#588474"
+      />
+      <path d="M58 37 80 22l22 15-6 37H64Z" fill="#76a087" />
+      <path
+        d="M67 47h9m9 0h8M80 49l-4 12h8m-14 7h20M61 87l19 13 19-13M65 115h30m-15-15v27"
+        stroke="#d0cc9c"
+        strokeWidth="2"
+      />
+      <path d="M51 134h58" stroke="#9a895c" strokeWidth="4" />
+    </>
+  ),
+  chalice: (
+    <>
+      <path
+        d="M41 40h78q-2 47-33 53v25h17l9 14H48l9-14h17V93q-31-6-33-53Z"
+        fill="#a8aeb1"
+      />
+      <ellipse cx="80" cy="40" rx="39" ry="10" fill="#d1c9b3" />
+      <ellipse cx="80" cy="40" rx="31" ry="5" fill="#716678" />
+      <path
+        d="M49 56q31 11 62 0m-57 7q5 20 22 23m4 8v26m-20 6h40"
+        stroke="#e6dfc5"
+      />
+      {[57, 80, 103].map((x) => (
+        <path key={x} d={`m${x} 52 5 7-5 7-5-7Z`} fill="#80728b" />
+      ))}
+    </>
+  ),
+  orb: (
+    <>
+      <circle cx="80" cy="70" r="40" fill="#6d95a8" />
+      <path
+        d="M51 48q25-26 48-4M50 84q30 17 58-9M65 34q-16 34 15 75m10-76q26 33-10 76"
+        stroke="#b6ccd0"
+      />
+      <path
+        d="M42 65q-3 48 38 57 41-9 38-57M80 122v13m-22 1h44"
+        stroke="#ab8f54"
+        strokeWidth="4"
+      />
+      <path d="m86 46-13 23h15L74 92" stroke="#e5e4cb" strokeWidth="2" />
+    </>
+  ),
+  lyre: (
+    <>
+      <path
+        d="M45 33q-20 48 8 72l14 22h26l14-22q28-24 8-72l-12 6q15 45-11 48H68Q42 84 57 39Z"
+        fill="#bd9a51"
+      />
+      <path d="M48 39h64M60 94h40m-36 8h32" stroke="#d6c18b" strokeWidth="4" />
+      {[62, 68, 74, 80, 86, 92, 98].map((x) => (
+        <path key={x} d={`M${x} 42v46`} stroke="#77654c" strokeWidth=".8" />
+      ))}
+      <path d="m51 33-7-8m65 8 7-8" />
+    </>
+  ),
+  phoenix: (
+    <>
+      <path d="M71 33V22q9-11 18 0v11" stroke="#b78a40" strokeWidth="4" />
+      <circle cx="80" cy="83" r="48" fill="#caa65a" />
+      <circle cx="80" cy="83" r="41" stroke="#ebd59b" />
+      <path
+        d="m80 109-17 16 4-25Q35 93 43 59l27 21-4-24 15 12 14-20 1 25 25-18q5 34-29 47l4 24Z"
+        fill="#e0bd6a"
+      />
+      <path
+        d="m45 66 22 21m48-23-23 24M74 68l6 22 7-11m-7 11-6 14h13"
+        stroke="#9b6e39"
+      />
+      <path d="m80 83 7 12-7 12-7-12Z" fill="#a85744" />
+    </>
+  ),
+};
+
 /** Engraved specimen drawings, shared by the cabinet, rewards, and trade offers. */
 export default function TreasureArt({
   kind,
@@ -9,6 +249,7 @@ export default function TreasureArt({
   className?: string;
 }) {
   const id = useId().replace(/:/g, "");
+
   return (
     <svg
       className={`specimen-art ${className}`}
@@ -242,6 +483,7 @@ export default function TreasureArt({
           <path d="M80 23l14 10m-17-4 14 10" stroke="#a69b77" />
         </g>
       ) : null}
+      {newDrawings[kind] ? <g>{newDrawings[kind]}</g> : null}
       <path d="M17 145h16m94 0h16" stroke="#b7a77c" strokeWidth=".7" />
     </svg>
   );

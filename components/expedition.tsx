@@ -29,6 +29,7 @@ import {
   pinStates,
   coinReward,
   treasures,
+  rarityChances,
   stateFor,
   type Profile,
   type Progress,
@@ -95,6 +96,7 @@ export default function Expedition({
   const [error, setError] = useState("");
   const [answer, setAnswer] = useState("");
   const [level, setLevel] = useState(1);
+  const [boardRevision, setBoardRevision] = useState(0);
   const [rankings, setRankings] = useState<Ranking[]>([]);
   const [boardLoading, setBoardLoading] = useState(false);
   const [trades, setTrades] = useState<Trade[]>([]);
@@ -150,25 +152,51 @@ export default function Expedition({
   }, []);
   useEffect(() => {
     const controller = new AbortController();
+    let active = true;
+    async function refreshScores() {
+      try {
+        const response = await fetch(`/api/leaderboard?level=${level}`, {
+          signal: controller.signal,
+          cache: "no-store",
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error);
+        if (active) setRankings(data);
+      } catch (error) {
+        if (
+          active &&
+          !(error instanceof DOMException && error.name === "AbortError")
+        )
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Scores could not refresh.",
+          );
+      } finally {
+        if (active) setBoardLoading(false);
+      }
+    }
+    function refreshVisible() {
+      if (document.visibilityState === "visible") void refreshScores();
+    }
+    let timer: ReturnType<typeof setInterval> | undefined;
     if (tab === "leaderboard") {
       setBoardLoading(true);
       setRankings([]);
-      fetch(`/api/leaderboard?level=${level}`, { signal: controller.signal })
-        .then(async (r) => {
-          const data = await r.json();
-          if (!r.ok) throw new Error(data.error);
-          setRankings(data);
-        })
-        .catch((e) => {
-          if (e.name !== "AbortError") setError(e.message);
-        })
-        .finally(() => {
-          if (!controller.signal.aborted) setBoardLoading(false);
-        });
+      void refreshScores();
+      timer = setInterval(refreshVisible, 15000);
+      window.addEventListener("focus", refreshVisible);
+      document.addEventListener("visibilitychange", refreshVisible);
     }
     if (tab === "trades") loadTrades().catch((e) => setError(e.message));
-    return () => controller.abort();
-  }, [tab, level, loadTrades]);
+    return () => {
+      active = false;
+      controller.abort();
+      clearInterval(timer);
+      window.removeEventListener("focus", refreshVisible);
+      document.removeEventListener("visibilitychange", refreshVisible);
+    };
+  }, [tab, level, loadTrades, boardRevision]);
   function inspectCheckpoint(id: number) {
     setSelected(id);
     setDetailsOpen(true);
@@ -264,6 +292,8 @@ export default function Expedition({
       });
       await loadGame();
       if (result.completed) {
+        setLevel(selected);
+        setBoardRevision((v) => v + 1);
         setMessage(
           result.alreadyCompleted
             ? "You already discovered this treasure."
@@ -334,10 +364,6 @@ export default function Expedition({
         </nav>
         <div className="sidebar-note">
           <TreasureArt kind="compass" className="journal-drawing" />
-          <p>
-            The southern shore is the only part of the island marked on the old
-            chart.
-          </p>
           <span className="note-line" />
         </div>
         <button
@@ -515,9 +541,6 @@ export default function Expedition({
                       </p>
                     </div>
                   </div>
-                  <span className="region-pill">
-                    <span /> SURVEY No. 01
-                  </span>
                 </div>
                 <IslandMap
                   progress={progress}
@@ -559,14 +582,18 @@ export default function Expedition({
                   <span className="eyebrow">THE EXPLORER’S SATCHEL</span>
                   <h2>The sealed field satchel</h2>
                   <p>
-                    A satchel contains one unknown artifact and costs 100 coins
-                    earned from solving clues.
+                    A satchel draws one of 24 artifacts and costs 100 coins
+                    earned from solving clues. Both packs and completed
+                    checkpoints use the same chances. Duplicates can be traded,
+                    and completing the route does not guarantee the full
+                    collection.
                   </p>
                   <details>
                     <summary>See drop chances</summary>
                     <p>
-                      Compass 40% · Scarab 25% · Amphora 20% · Emerald 8% ·
-                      Moonstone 6% · Crown 1%
+                      {rarityChances
+                        .map((r) => `${r.rarity} ${r.chance}%`)
+                        .join(" · ")}
                     </p>
                   </details>
                 </div>
@@ -581,7 +608,8 @@ export default function Expedition({
               <div className="section-label">
                 <h2>Your collection</h2>
                 <span>
-                  {inventory.filter((i) => i.quantity > 0).length} of 6
+                  {inventory.filter((i) => i.quantity > 0).length} of{" "}
+                  {treasures.length}
                   discovered
                 </span>
               </div>
@@ -594,7 +622,7 @@ export default function Expedition({
                     <article
                       key={t.id}
                       className={`treasure-card ${quantity ? "owned" : "undiscovered"}`}
-                      data-specimen={`0${index + 1}`}
+                      data-specimen={String(index + 1).padStart(2, "0")}
                     >
                       <span className={`rarity ${t.rarity.toLowerCase()}`}>
                         {t.rarity}
@@ -604,6 +632,9 @@ export default function Expedition({
                       </div>
                       <h3>{t.name}</h3>
                       <p>{t.description}</p>
+                      <small className="artifact-chance">
+                        {t.weight / 4}% chance per draw
+                      </small>
                       <div className="treasure-bottom">
                         <span>
                           {quantity
@@ -1020,12 +1051,39 @@ export default function Expedition({
               </div>
               {status === "completed" ? (
                 <div className="discovery-result">
-                  <TreasureArt kind={cp.reward} />
-                  <h3>Treasure discovered!</h3>
+                  <TreasureArt
+                    kind={
+                      progress.find((p) => p.checkpoint === selected)
+                        ?.treasure_id ?? cp.reward
+                    }
+                  />
+                  <h3>
+                    {
+                      treasures.find(
+                        (t) =>
+                          t.id ===
+                          (progress.find((p) => p.checkpoint === selected)
+                            ?.treasure_id ?? cp.reward),
+                      )?.name
+                    }{" "}
+                    discovered
+                  </h3>
                   <p>
                     {progress.find((p) => p.checkpoint === selected)?.score}{" "}
-                    points recorded in your journal.
+                    points saved to your journal and this checkpoint’s
+                    leaderboard.
                   </p>
+                  <button
+                    className="text-button"
+                    onClick={() => {
+                      setLevel(selected);
+                      setBoardRevision((v) => v + 1);
+                      closeModal();
+                      navigate("leaderboard");
+                    }}
+                  >
+                    View this checkpoint’s high scores
+                  </button>
                   {selected < TOTAL_CHECKPOINTS ? (
                     <button
                       className="button"
@@ -1093,8 +1151,9 @@ export default function Expedition({
                   </button>
                   {hint ? <p className="hint">{cp.hint}</p> : null}
                   <small className="puzzle-footnote">
-                    A correct answer earns one treasure and {coinReward(cp.id)}{" "}
-                    coins. Each incorrect attempt subtracts 25 score points.
+                    A correct answer draws one random artifact and{" "}
+                    {coinReward(cp.id)} coins. Each incorrect attempt subtracts
+                    25 score points.
                   </small>
                 </>
               )}

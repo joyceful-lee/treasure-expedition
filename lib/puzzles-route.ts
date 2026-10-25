@@ -6,7 +6,14 @@ import {
   starNumbers,
   starBearings,
 } from "./challenges.ts";
-const reliquarySolution = ["map", "candle", "echo", "key", "book", "clock"];
+const reliquarySolution = [
+  "mirror",
+  "sponge",
+  "needle",
+  "towel",
+  "comb",
+  "river",
+];
 export const solutions: Record<number, string[]> = {
   1: ["clock", "a clock", "watch", "a watch"],
   2: ["map", "a map"],

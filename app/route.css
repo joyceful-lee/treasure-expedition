@@ -595,3 +595,26 @@
     gap: 17px;
   }
 }
+
+.rarity.epic {
+  color: #75607e;
+  background: #ddd3df;
+}
+.rarity.legendary {
+  color: #8c6727;
+  background: #ead6a2;
+}
+.discovery-result > .text-button {
+  display: block;
+  margin: 16px auto;
+}
+.collection-grid {
+  align-items: stretch;
+}
+
+.artifact-chance {
+  display: block;
+  color: #7a765f;
+  font-size: 12px;
+  margin: 0 0 15px;
+}
