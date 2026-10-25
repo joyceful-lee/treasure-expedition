@@ -39,8 +39,8 @@
   white-space: nowrap;
 }
 .route-scroll {
-  height: 600px !important;
-  max-height: 600px;
+  height: auto !important;
+  max-height: none;
   overflow: auto !important;
   overscroll-behavior: contain;
   scrollbar-color: #8c9478 #dedcc5;
