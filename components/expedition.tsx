@@ -1,0 +1,1187 @@
+"use client";
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  ArrowDownUp,
+  ArrowRight,
+  BookOpen,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Coins,
+  Compass,
+  Flag,
+  Gem,
+  HelpCircle,
+  LockKeyhole,
+  LogOut,
+  Map,
+  Menu,
+  PackageOpen,
+  Sparkles,
+  Trophy,
+  X,
+} from "lucide-react";
+import { authClient } from "@/lib/auth-client";
+import {
+  checkpoints,
+  treasures,
+  stateFor,
+  type Profile,
+  type Progress,
+  type Item,
+  type Trade,
+} from "@/lib/expedition";
+import IslandMap from "./island-map";
+type Tab = "map" | "collection" | "trades" | "leaderboard";
+const paths: Record<Tab, string> = {
+  map: "/",
+  collection: "/collection",
+  trades: "/trades",
+  leaderboard: "/leaderboard",
+};
+type Ranking = { username: string; score: number; attempts: number };
+async function api(url: string, body?: Record<string, unknown>) {
+  const r = await fetch(
+    url,
+    body
+      ? {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }
+      : undefined,
+  );
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || "Something went wrong. Try again.");
+  return data;
+}
+const navigation = [
+  { id: "map" as const, label: "Expedition map", icon: Map },
+  { id: "collection" as const, label: "My treasures", icon: Gem },
+  { id: "trades" as const, label: "Trading post", icon: ArrowDownUp },
+  { id: "leaderboard" as const, label: "Hall of explorers", icon: Trophy },
+];
+export default function Expedition({
+  initialTab = "map",
+}: {
+  initialTab?: Tab;
+}) {
+  const [tab, setTab] = useState<Tab>(initialTab);
+  const [selected, setSelected] = useState(1);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [progress, setProgress] = useState<Progress[]>([]);
+  const [inventory, setInventory] = useState<Item[]>([]);
+  const [signedIn, setSignedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authOpen, setAuthOpen] = useState(false);
+  const [signUp, setSignUp] = useState(true);
+  const [puzzleOpen, setPuzzleOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [hint, setHint] = useState(false);
+  const [mobileNav, setMobileNav] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [level, setLevel] = useState(1);
+  const [rankings, setRankings] = useState<Ranking[]>([]);
+  const [boardLoading, setBoardLoading] = useState(false);
+  const [trades, setTrades] = useState<Trade[]>([]);
+  const [offered, setOffered] = useState("compass");
+  const [requested, setRequested] = useState("scarab");
+  const [packReward, setPackReward] = useState<string | null>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const completed = progress.filter((p) => p.completed_at).length;
+  const totalScore = progress.reduce((sum, p) => sum + p.score, 0);
+  const cp = checkpoints[selected - 1];
+  const status = stateFor(selected, progress);
+  const modal = authOpen || puzzleOpen || helpOpen || !!packReward;
+  const loadGame = useCallback(async () => {
+    const [session, game] = await Promise.all([
+      authClient.getSession(),
+      api("/api/game"),
+    ]);
+    setSignedIn(!!session.data?.user);
+    setProfile(game.profile);
+    setProgress(game.progress);
+    setInventory(game.inventory);
+    return game;
+  }, []);
+  useEffect(() => {
+    loadGame()
+      .catch((e) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [loadGame]);
+  useEffect(() => {
+    const onBack = () => {
+      const entry = Object.entries(paths).find(
+        ([, path]) => path === window.location.pathname,
+      );
+      setTab((entry?.[0] as Tab) ?? "map");
+      setMobileNav(false);
+    };
+    window.addEventListener("popstate", onBack);
+    return () => window.removeEventListener("popstate", onBack);
+  }, []);
+  useEffect(() => {
+    if (modal) {
+      dialogRef.current?.showModal();
+    } else {
+      dialogRef.current?.close();
+    }
+  }, [modal]);
+  const loadTrades = useCallback(async () => {
+    setTrades(await api("/api/trades"));
+  }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    if (tab === "leaderboard") {
+      setBoardLoading(true);
+      setRankings([]);
+      fetch(`/api/leaderboard?level=${level}`, { signal: controller.signal })
+        .then(async (r) => {
+          const data = await r.json();
+          if (!r.ok) throw new Error(data.error);
+          setRankings(data);
+        })
+        .catch((e) => {
+          if (e.name !== "AbortError") setError(e.message);
+        })
+        .finally(() => {
+          if (!controller.signal.aborted) setBoardLoading(false);
+        });
+    }
+    if (tab === "trades") loadTrades().catch((e) => setError(e.message));
+    return () => controller.abort();
+  }, [tab, level, loadTrades]);
+  function closeModal() {
+    setAuthOpen(false);
+    setPuzzleOpen(false);
+    setHelpOpen(false);
+    setPackReward(null);
+    setMessage("");
+    setError("");
+  }
+  function navigate(next: Tab) {
+    if (window.location.pathname !== paths[next])
+      window.history.pushState(null, "", paths[next]);
+    setTab(next);
+    setMobileNav(false);
+    setMessage("");
+    setError("");
+  }
+  function requireProfile() {
+    if (!profile) {
+      setSignUp(!signedIn);
+      setAuthOpen(true);
+      return false;
+    }
+    return true;
+  }
+  async function run(action: () => Promise<void>) {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      await action();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+  async function authenticate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    await run(async () => {
+      const username = String(data.get("username") || "");
+      if (!signedIn) {
+        const params = {
+          email: String(data.get("email")),
+          password: String(data.get("password")),
+          name: username,
+        };
+        const result = signUp
+          ? await authClient.signUp.email(params)
+          : await authClient.signIn.email(params);
+        if (result.error)
+          throw new Error(result.error.message || "Could not log in.");
+        const session = await authClient.getSession();
+        if (!session.data?.user) {
+          setMessage("Check your email to verify your account, then log in.");
+          return;
+        }
+        setSignedIn(true);
+      }
+      const game = await loadGame();
+      if (!game.profile) {
+        if (!username) {
+          setMessage("One last step: choose your explorer name.");
+          return;
+        }
+        await api("/api/game", { action: "profile", username });
+        await loadGame();
+      }
+      setAuthOpen(false);
+      setMessage("Welcome, explorer. Your adventure is ready!");
+    });
+  }
+  async function submitAnswer(event: React.FormEvent) {
+    event.preventDefault();
+    await run(async () => {
+      const result = await api("/api/game", {
+        action: "answer",
+        checkpoint: selected,
+        answer,
+      });
+      await loadGame();
+      if (result.completed) {
+        setMessage(
+          result.alreadyCompleted
+            ? "You already discovered this treasure."
+            : `Checkpoint complete! +${result.score} points, +100 coins, and a new treasure.`,
+        );
+      } else setMessage("Not quite! Look at the clue again. You’ve got this.");
+    });
+  }
+  async function openPack() {
+    if (!requireProfile()) return;
+    await run(async () => {
+      const data = await api("/api/game", { action: "pack" });
+      await loadGame();
+      setPackReward(data.reward);
+    });
+  }
+  async function tradeAction(action: string, id?: string) {
+    if (!requireProfile()) return;
+    await run(async () => {
+      await api("/api/game", { action, id, offered, requested });
+      await Promise.all([loadGame(), loadTrades()]);
+      setMessage(
+        action === "trade"
+          ? "Trade posted! Your offered treasure is reserved."
+          : action === "cancel"
+            ? "Trade cancelled. Your treasure is back in your collection."
+            : "Trade complete! Check your collection.",
+      );
+    });
+  }
+  function startPuzzle() {
+    if (!requireProfile()) return;
+    setAnswer("");
+    setHint(false);
+    setMessage("");
+    setError("");
+    setPuzzleOpen(true);
+  }
+  return (
+    <div className="app-shell">
+      <aside className={`sidebar ${mobileNav ? "mobile-open" : ""}`}>
+        <a href="/" className="brand">
+          <span className="brand-mark">
+            <Compass size={29} strokeWidth={1.5} />
+          </span>
+          <span>
+            Treasure<span>Expedition</span>
+          </span>
+        </a>
+        <div className="sidebar-caption">THE ADVENTURE IS YOURS</div>
+        <nav aria-label="Main navigation">
+          {navigation.map((n) => (
+            <button
+              key={n.id}
+              className={`nav-item ${tab === n.id ? "active" : ""}`}
+              onClick={() => navigate(n.id)}
+            >
+              <n.icon size={19} />
+              <span>{n.label}</span>
+              {tab === n.id ? <ChevronRight size={15} /> : null}
+            </button>
+          ))}
+        </nav>
+        <div className="sidebar-note">
+          <span className="note-star">✧</span>
+          <p>
+            A little curiosity.
+            <br />A world of discovery.
+          </p>
+          <span className="note-line" />
+        </div>
+        <button
+          className="help-link"
+          onClick={() => {
+            setError("");
+            setHelpOpen(true);
+          }}
+        >
+          <HelpCircle size={18} /> Explorer’s guide <ChevronRight size={14} />
+        </button>
+        <div className="sidebar-user">
+          <span className="avatar">
+            {profile ? (
+              profile.username.slice(0, 1).toUpperCase()
+            ) : (
+              <Compass size={20} />
+            )}
+          </span>
+          <div>
+            <strong>{profile?.username || "New explorer"}</strong>
+            <small>
+              {profile ? "Adventure in progress" : "Your story starts here"}
+            </small>
+          </div>
+          {signedIn ? (
+            <button
+              className="icon-button"
+              aria-label="Log out"
+              onClick={() =>
+                run(async () => {
+                  await authClient.signOut();
+                  await loadGame();
+                })
+              }
+            >
+              <LogOut size={17} />
+            </button>
+          ) : null}
+        </div>
+      </aside>
+      <main>
+        <header className="topbar">
+          <div className="breadcrumb">
+            <button
+              className="icon-button mobile-menu"
+              onClick={() => setMobileNav(!mobileNav)}
+              aria-label="Toggle navigation"
+            >
+              <Menu size={22} />
+            </button>
+            <span>The explorer’s journal</span>
+            <ChevronRight size={13} />
+            <strong>{navigation.find((n) => n.id === tab)?.label}</strong>
+          </div>
+          <div className="top-actions">
+            <span className="coin-count">
+              <Coins size={17} />
+              {profile?.coins ?? 0}
+              <span> coins</span>
+            </span>
+            {!profile ? (
+              <button
+                className="button small"
+                onClick={() => {
+                  setSignUp(!signedIn);
+                  setAuthOpen(true);
+                }}
+              >
+                {signedIn ? "Choose explorer name" : "Join the expedition"}
+                <ArrowRight size={15} />
+              </button>
+            ) : (
+              <span className="explorer-tag">
+                <span className="online-dot" /> Explorer
+              </span>
+            )}
+          </div>
+        </header>
+        <div className="page-content">
+          {!modal && error ? (
+            <div className="notice error" role="alert">
+              {error}
+              <button onClick={() => setError("")} aria-label="Dismiss error">
+                <X size={16} />
+              </button>
+            </div>
+          ) : null}
+          {!modal && message ? (
+            <div className="notice" role="status">
+              {message}
+            </div>
+          ) : null}
+          {tab === "map" ? (
+            <>
+              <section className="page-heading">
+                <div>
+                  <div className="eyebrow">
+                    <span /> YOUR NEXT DISCOVERY AWAITS
+                  </div>
+                  <h1>Adventure is on the horizon.</h1>
+                  <p>Follow the clues. Uncover the secrets. Leave your mark.</p>
+                </div>
+                <button
+                  className="outline-button guide-button"
+                  onClick={() => setHelpOpen(true)}
+                >
+                  <BookOpen size={16} /> How to play
+                </button>
+              </section>
+              <section className="stats-row" aria-label="Expedition stats">
+                <div className="stat">
+                  <span className="stat-icon sand">
+                    <Flag size={20} />
+                  </span>
+                  <div>
+                    <span>Checkpoints completed</span>
+                    <strong>
+                      {completed}
+                      <small> / 6</small>
+                    </strong>
+                  </div>
+                  <span className="stat-detail">
+                    {completed === 6
+                      ? "Island explored!"
+                      : "Your journey so far"}
+                  </span>
+                </div>
+                <div className="stat">
+                  <span className="stat-icon sage">
+                    <Gem size={20} />
+                  </span>
+                  <div>
+                    <span>Treasures collected</span>
+                    <strong>
+                      {inventory.reduce((n, i) => n + i.quantity, 0)}
+                      <small> treasures</small>
+                    </strong>
+                  </div>
+                  <span className="stat-detail">Little pieces of history</span>
+                </div>
+                <div className="stat">
+                  <span className="stat-icon lavender">
+                    <Trophy size={20} />
+                  </span>
+                  <div>
+                    <span>Expedition score</span>
+                    <strong>
+                      {totalScore.toLocaleString()}
+                      <small> pts</small>
+                    </strong>
+                  </div>
+                  <button
+                    className="stat-link"
+                    onClick={() => navigate("leaderboard")}
+                  >
+                    View leaderboard <ArrowRight size={13} />
+                  </button>
+                </div>
+              </section>
+              <section className="map-card">
+                <div className="map-card-header">
+                  <div className="map-title">
+                    <span className="chapter">01</span>
+                    <div>
+                      <h2>The Lost Island</h2>
+                      <p>
+                        Six checkpoints. Countless secrets. One unforgettable
+                        expedition.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="region-pill">
+                    <span /> EXPEDITION ONE
+                  </span>
+                </div>
+                <IslandMap
+                  progress={progress}
+                  selected={selected}
+                  onSelect={setSelected}
+                />
+                <div className="map-footer">
+                  <div className="legend">
+                    <span>
+                      <i className="available" /> Available
+                    </span>
+                    <span>
+                      <i className="attempted" /> Attempted
+                    </span>
+                    <span>
+                      <i className="completed" /> Completed
+                    </span>
+                    <span>
+                      <i className="locked" /> Locked
+                    </span>
+                  </div>
+                  <span>
+                    <LockKeyhole size={13} /> Solve a checkpoint to unlock the
+                    next
+                  </span>
+                </div>
+              </section>
+              <section className="below-map">
+                <div className="checkpoint-card">
+                  <div className="checkpoint-emblem">
+                    <Flag size={27} />
+                  </div>
+                  <div className="checkpoint-info">
+                    <div className="eyebrow">
+                      {status === "locked"
+                        ? "A SECRET AHEAD"
+                        : status === "completed"
+                          ? "DISCOVERY MADE"
+                          : "YOUR NEXT CHECKPOINT"}{" "}
+                      <span className={`status-pill ${status}`}>{status}</span>
+                    </div>
+                    <h3>{cp.name}</h3>
+                    <p>{cp.subtitle}</p>
+                    <div className="checkpoint-meta">
+                      <span>
+                        <Sparkles size={12} /> {cp.difficulty}
+                      </span>
+                      <span>{cp.kind}</span>
+                      <span>
+                        <Gem size={12} /> 1 treasure + 100 coins
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    disabled={loading || status === "locked"}
+                    className="button"
+                    onClick={startPuzzle}
+                  >
+                    {loading
+                      ? "Loading…"
+                      : status === "locked"
+                        ? "Locked"
+                        : status === "completed"
+                          ? "View discovery"
+                          : status === "attempted"
+                            ? "Try again"
+                            : "Explore checkpoint"}
+                    {status === "locked" ? (
+                      <LockKeyhole size={16} />
+                    ) : (
+                      <ArrowRight size={16} />
+                    )}
+                  </button>
+                </div>
+                <div className="field-note">
+                  <span className="eyebrow">
+                    <BookOpen size={13} /> FIELD NOTE NO. 01
+                  </span>
+                  <p>
+                    “The real treasure?
+                    <br />
+                    What you discover along the way.”
+                  </p>
+                  <span>Keep your eyes open, explorer.</span>
+                </div>
+              </section>
+            </>
+          ) : null}
+          {tab === "collection" ? (
+            <>
+              <PageHeading
+                eyebrow="YOUR CABINET OF CURIOSITIES"
+                title="Every treasure tells a story."
+                text="Keep your discoveries, find something rare, or trade with a fellow explorer."
+              />
+              <div className="pack-banner">
+                <div className="pack-icon">🎒</div>
+                <div>
+                  <span className="eyebrow">THE EXPLORER’S SATCHEL</span>
+                  <h2>A little mystery. A new discovery.</h2>
+                  <p>
+                    Open a pack for one random treasure. Collect duplicates to
+                    trade.
+                  </p>
+                  <details>
+                    <summary>See drop chances</summary>
+                    <p>
+                      Compass 40% · Scarab 25% · Amphora 20% · Emerald 8% ·
+                      Moonstone 6% · Crown 1%
+                    </p>
+                  </details>
+                </div>
+                <button
+                  className="button"
+                  disabled={busy || (!!profile && profile.coins < 100)}
+                  onClick={openPack}
+                >
+                  <PackageOpen size={17} /> Open pack · 100 coins
+                </button>
+              </div>
+              <div className="section-label">
+                <h2>Your collection</h2>
+                <span>
+                  {inventory.filter((i) => i.quantity > 0).length} of 6
+                  discovered
+                </span>
+              </div>
+              <div className="treasure-grid">
+                {treasures.map((t) => {
+                  const quantity =
+                    inventory.find((i) => i.treasure_id === t.id)?.quantity ??
+                    0;
+                  return (
+                    <article
+                      key={t.id}
+                      className={`treasure-card ${quantity ? "owned" : "undiscovered"}`}
+                    >
+                      <span className={`rarity ${t.rarity.toLowerCase()}`}>
+                        {t.rarity}
+                      </span>
+                      <div className="treasure-emoji">
+                        {quantity ? (
+                          t.icon
+                        ) : (
+                          <LockKeyhole size={42} strokeWidth={1} />
+                        )}
+                      </div>
+                      <h3>{t.name}</h3>
+                      <p>{t.description}</p>
+                      <div className="treasure-bottom">
+                        <span>
+                          {quantity
+                            ? `${quantity} in your collection`
+                            : "Waiting to be discovered"}
+                        </span>
+                        {quantity ? <Check size={16} /> : null}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          ) : null}
+          {tab === "leaderboard" ? (
+            <>
+              <PageHeading
+                eyebrow="GREAT MINDS. GRAND ADVENTURES."
+                title="The hall of explorers."
+                text="Meet the top 10 puzzle solvers at every checkpoint. There’s room for your name."
+              />
+              <div className="board-layout">
+                <section className="panel leaderboard">
+                  <div className="panel-header">
+                    <h2>
+                      <Trophy size={20} /> High scores
+                    </h2>
+                    <label className="level-select">
+                      <span className="sr-only">Checkpoint</span>
+                      <select
+                        value={level}
+                        onChange={(e) => setLevel(Number(e.target.value))}
+                      >
+                        {checkpoints.map((c) => (
+                          <option key={c.id} value={c.id}>
+                            0{c.id} · {c.name}
+                          </option>
+                        ))}
+                      </select>
+                      <ChevronDown size={14} />
+                    </label>
+                  </div>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Rank</th>
+                        <th>Explorer</th>
+                        <th>Attempts</th>
+                        <th>Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {!boardLoading
+                        ? rankings.map((r, i) => (
+                            <tr key={r.username}>
+                              <td>
+                                <span className={`rank rank-${i + 1}`}>
+                                  {i === 0
+                                    ? "♛"
+                                    : String(i + 1).padStart(2, "0")}
+                                </span>
+                              </td>
+                              <td>
+                                <span className="table-avatar">
+                                  {r.username[0].toUpperCase()}
+                                </span>
+                                {r.username}
+                              </td>
+                              <td>{r.attempts}</td>
+                              <td>
+                                <strong>{r.score.toLocaleString()}</strong> pts
+                              </td>
+                            </tr>
+                          ))
+                        : null}
+                    </tbody>
+                  </table>
+                  {boardLoading ? (
+                    <div className="empty-state">
+                      Unrolling the record scroll…
+                    </div>
+                  ) : !rankings.length ? (
+                    <div className="empty-state">
+                      <Trophy size={38} strokeWidth={1} />
+                      <h3>History is waiting to be written.</h3>
+                      <p>
+                        No discoveries here yet. Be the first to solve this
+                        checkpoint.
+                      </p>
+                      <button
+                        className="button"
+                        onClick={() => {
+                          setSelected(level);
+                          navigate("map");
+                        }}
+                      >
+                        Explore the map <ArrowRight size={15} />
+                      </button>
+                    </div>
+                  ) : null}
+                </section>
+                <aside className="panel scoring-note">
+                  <span className="big-medal">🏆</span>
+                  <h2>Make your mark.</h2>
+                  <p>Complete a checkpoint to appear on its leaderboard.</p>
+                  <ul>
+                    <li>Start with 250 × the checkpoint number.</li>
+                    <li>
+                      Each incorrect answer takes off 25 points, down to a
+                      minimum of 100.
+                    </li>
+                    <li>Tied scores? The earlier discovery wins.</li>
+                    <li>Scores are saved once. Every discovery counts.</li>
+                  </ul>
+                  <p>
+                    Only explorer names appear here. Your email stays private.
+                  </p>
+                  {!profile ? (
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setSignUp(!signedIn);
+                        setAuthOpen(true);
+                      }}
+                    >
+                      Start your story <ArrowRight size={15} />
+                    </button>
+                  ) : null}
+                </aside>
+              </div>
+            </>
+          ) : null}
+          {tab === "trades" ? (
+            <>
+              <PageHeading
+                eyebrow="GOOD FINDS. GREAT EXCHANGES."
+                title="The trading post."
+                text="One explorer’s extra treasure is another explorer’s next great find."
+              />
+              <section className="panel trade-form">
+                <div>
+                  <h2>Put a treasure on the table.</h2>
+                  <p>
+                    Trade one treasure for another. Your offer is held safely
+                    until traded or cancelled.
+                  </p>
+                </div>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    tradeAction("trade");
+                  }}
+                >
+                  <label>
+                    You offer
+                    <select
+                      value={offered}
+                      onChange={(e) => setOffered(e.target.value)}
+                    >
+                      {treasures.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.icon} {t.name} (
+                          {inventory.find((i) => i.treasure_id === t.id)
+                            ?.quantity ?? 0}
+                          )
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <ArrowRight size={19} />
+                  <label>
+                    You’re looking for
+                    <select
+                      value={requested}
+                      onChange={(e) => setRequested(e.target.value)}
+                    >
+                      {treasures.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.icon} {t.name}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <button
+                    className="button"
+                    disabled={busy || (!!profile && offered === requested)}
+                  >
+                    Post trade <ArrowRight size={16} />
+                  </button>
+                </form>
+              </section>
+              <div className="section-label">
+                <h2>Offers from the island</h2>
+                <button className="text-button" onClick={() => run(loadTrades)}>
+                  Refresh offers
+                </button>
+              </div>
+              <div className="trade-grid">
+                {trades.map((t) => {
+                  const offer = treasures.find((x) => x.id === t.offered)!;
+                  const want = treasures.find((x) => x.id === t.requested)!;
+                  return (
+                    <article key={t.id} className="panel trade-card">
+                      <span className="eyebrow">{t.username} IS TRADING</span>
+                      <div className="trade-items">
+                        <div>
+                          <span>{offer.icon}</span>
+                          <strong>{offer.name}</strong>
+                        </div>
+                        <ArrowDownUp size={20} />
+                        <div>
+                          <span>{want.icon}</span>
+                          <strong>{want.name}</strong>
+                        </div>
+                      </div>
+                      <button
+                        className={
+                          profile?.id === t.maker_id
+                            ? "outline-button"
+                            : "button"
+                        }
+                        disabled={busy}
+                        onClick={() =>
+                          tradeAction(
+                            profile?.id === t.maker_id ? "cancel" : "accept",
+                            t.id,
+                          )
+                        }
+                      >
+                        {profile?.id === t.maker_id
+                          ? "Cancel my offer"
+                          : "Accept trade"}
+                        <ArrowRight size={15} />
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+              {!trades.length ? (
+                <div className="empty-state panel">
+                  <ArrowDownUp size={36} strokeWidth={1} />
+                  <h3>A quiet day at the trading post.</h3>
+                  <p>Collect a treasure and post the island’s first offer.</p>
+                </div>
+              ) : null}
+            </>
+          ) : null}
+          <footer className="page-footer">
+            <span>
+              <Compass size={14} /> Curiosity is your compass.
+            </span>
+            <span>
+              Treasure Expedition <span>·</span> Let the adventure unfold.
+            </span>
+          </footer>
+        </div>
+      </main>
+      <dialog
+        ref={dialogRef}
+        className="modal"
+        onCancel={closeModal}
+        onClick={(e) => {
+          if (e.target === e.currentTarget) closeModal();
+        }}
+      >
+        <div className="modal-inner">
+          <button
+            className="modal-close icon-button"
+            onClick={closeModal}
+            aria-label="Close dialog"
+          >
+            <X size={21} />
+          </button>
+          {authOpen ? (
+            <>
+              <div className="modal-symbol">
+                <Compass size={34} />
+              </div>
+              <div className="eyebrow">YOUR ADVENTURE STARTS HERE</div>
+              <h2>
+                {signedIn
+                  ? "Choose your explorer name"
+                  : signUp
+                    ? "Join the expedition."
+                    : "Welcome back, explorer."}
+              </h2>
+              <p>
+                {signedIn
+                  ? "This name appears on leaderboards and trades. Use a nickname, not your real name."
+                  : "Save your journey, collect treasures, and make your mark on the leaderboard."}
+              </p>
+              <form className="auth-form" onSubmit={authenticate}>
+                {signUp || signedIn ? (
+                  <label>
+                    Explorer name
+                    <input
+                      name="username"
+                      required
+                      pattern="[a-zA-Z0-9_]{3,20}"
+                      minLength={3}
+                      maxLength={20}
+                      placeholder="e.g. CompassKid"
+                      autoComplete="nickname"
+                    />
+                    <small>
+                      3–20 letters, numbers, or underscores. Choose a nickname.
+                    </small>
+                  </label>
+                ) : null}
+                {!signedIn ? (
+                  <>
+                    <label>
+                      Email
+                      <input
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        placeholder="you@example.com"
+                      />
+                    </label>
+                    <label>
+                      Password
+                      <input
+                        name="password"
+                        type="password"
+                        autoComplete={
+                          signUp ? "new-password" : "current-password"
+                        }
+                        minLength={8}
+                        maxLength={128}
+                        required
+                        placeholder="At least 8 characters"
+                      />
+                    </label>
+                  </>
+                ) : null}
+                <button className="button" disabled={busy}>
+                  {busy
+                    ? "Getting your journal ready…"
+                    : signedIn
+                      ? "Save explorer name"
+                      : signUp
+                        ? "Create my account"
+                        : "Log in"}
+                  <ArrowRight size={16} />
+                </button>
+              </form>
+              {!signedIn ? (
+                <button
+                  className="auth-switch"
+                  onClick={() => {
+                    setSignUp(!signUp);
+                    setError("");
+                    setMessage("");
+                  }}
+                >
+                  {signUp
+                    ? "Already an explorer? Log in"
+                    : "New to the island? Create an account"}
+                </button>
+              ) : null}
+            </>
+          ) : null}
+          {puzzleOpen ? (
+            <>
+              <span className="eyebrow">
+                CHECKPOINT 0{selected} · {cp.difficulty.toUpperCase()}
+              </span>
+              <h2>{cp.name}</h2>
+              <p>{cp.subtitle}</p>
+              <div className="puzzle-clue">
+                <span className="eyebrow">{cp.kind}</span>
+                <p>{cp.prompt}</p>
+              </div>
+              {status === "completed" ? (
+                <div className="discovery-result">
+                  <span>{treasures.find((t) => t.id === cp.reward)?.icon}</span>
+                  <h3>Treasure discovered!</h3>
+                  <p>
+                    {progress.find((p) => p.checkpoint === selected)?.score}{" "}
+                    points recorded in your journal.
+                  </p>
+                  {selected < 6 ? (
+                    <button
+                      className="button"
+                      onClick={() => {
+                        setSelected(selected + 1);
+                        setAnswer("");
+                        setHint(false);
+                        setMessage("");
+                      }}
+                    >
+                      Next checkpoint <ArrowRight size={16} />
+                    </button>
+                  ) : (
+                    <button
+                      className="button"
+                      onClick={() => {
+                        closeModal();
+                        navigate("collection");
+                      }}
+                    >
+                      See my treasures <Gem size={16} />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <form className="answer-form" onSubmit={submitAnswer}>
+                    <label>
+                      Your answer
+                      <input
+                        value={answer}
+                        onChange={(e) => setAnswer(e.target.value)}
+                        maxLength={200}
+                        required
+                        placeholder="Follow your curiosity…"
+                        autoComplete="off"
+                      />
+                    </label>
+                    <button
+                      className="button"
+                      disabled={busy || !answer.trim()}
+                    >
+                      {busy ? "Checking the clue…" : "Check answer"}
+                      <ArrowRight size={16} />
+                    </button>
+                  </form>
+                  <button
+                    className="text-button hint-button"
+                    onClick={() => setHint(!hint)}
+                  >
+                    <HelpCircle size={15} />
+                    {hint ? "Hide hint" : "A little help? Show a hint"}
+                  </button>
+                  {hint ? <p className="hint">{cp.hint}</p> : null}
+                  <small className="puzzle-footnote">
+                    Correct answer: 1 treasure + 100 coins. Each miss costs 25
+                    score points.
+                  </small>
+                </>
+              )}
+            </>
+          ) : null}
+          {helpOpen ? (
+            <>
+              <span className="eyebrow">THE EXPLORER’S GUIDE</span>
+              <h2>A map. A mystery. You.</h2>
+              <div className="guide-steps">
+                <div>
+                  <span>01</span>
+                  <section>
+                    <h3>Make a name for yourself.</h3>
+                    <p>
+                      Sign up and choose an explorer nickname. We’ll save your
+                      discoveries as you go.
+                    </p>
+                  </section>
+                </div>
+                <div>
+                  <span>02</span>
+                  <section>
+                    <h3>Follow the trail.</h3>
+                    <p>
+                      Start at The Landing. Each solved puzzle unlocks the next
+                      checkpoint. The clues get trickier along the way.
+                    </p>
+                  </section>
+                </div>
+                <div>
+                  <span>03</span>
+                  <section>
+                    <h3>Build your collection.</h3>
+                    <p>
+                      Every first solve earns a treasure and 100 coins. Spend
+                      100 coins on a surprise pack, or swap treasures at the
+                      trading post.
+                    </p>
+                  </section>
+                </div>
+                <div>
+                  <span>04</span>
+                  <section>
+                    <h3>Leave your mark.</h3>
+                    <p>
+                      The top 10 scores at each checkpoint appear in the hall of
+                      explorers. Fewer wrong answers mean more points. Hints are
+                      free!
+                    </p>
+                  </section>
+                </div>
+              </div>
+              <button className="button" onClick={closeModal}>
+                Adventure awaits <ArrowRight size={16} />
+              </button>
+            </>
+          ) : null}
+          {packReward
+            ? (() => {
+                const t = treasures.find((t) => t.id === packReward)!;
+                return (
+                  <div className="pack-reveal">
+                    <span className="eyebrow">A NEW DISCOVERY</span>
+                    <div className="reveal-emoji">{t.icon}</div>
+                    <span className={`rarity ${t.rarity.toLowerCase()}`}>
+                      {t.rarity}
+                    </span>
+                    <h2>{t.name}</h2>
+                    <p>{t.description}</p>
+                    <p>Added to your treasure collection.</p>
+                    <button className="button" onClick={closeModal}>
+                      Keep exploring <ArrowRight size={16} />
+                    </button>
+                  </div>
+                );
+              })()
+            : null}
+          {error ? (
+            <div className="notice error" role="alert">
+              {error}
+            </div>
+          ) : null}
+          {message ? (
+            <div className="notice" role="status">
+              {message}
+            </div>
+          ) : null}
+        </div>
+      </dialog>
+    </div>
+  );
+}
+function PageHeading({
+  eyebrow,
+  title,
+  text,
+}: {
+  eyebrow: string;
+  title: string;
+  text: string;
+}) {
+  return (
+    <section className="page-heading">
+      <div>
+        <div className="eyebrow">
+          <span />
+          {eyebrow}
+        </div>
+        <h1>{title}</h1>
+        <p>{text}</p>
+      </div>
+    </section>
+  );
+}

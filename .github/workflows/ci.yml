@@ -1,0 +1,24 @@
+name: Validate Treasure Expedition
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run build
+        env:
+          NEON_AUTH_BASE_URL: https://example.neonauth.us-west-2.aws.neon.tech/neondb/auth
+          NEON_AUTH_COOKIE_SECRET: ci-build-only-secret-not-a-real-credential-12345678
+          DATABASE_URL: postgresql://build:build@localhost:5432/build
