@@ -43,6 +43,10 @@ import TreasureArt from "./treasure-art";
 import CheckpointDetails from "./checkpoint-details";
 import InteractiveChallenge from "./interactive-challenge";
 import CheckpointStars from "./checkpoint-stars";
+import { sellPrices } from "@/lib/artifacts";
+import { formatTime } from "@/lib/time";
+import CompletionBadge from "./completion-badge";
+import CheckpointTimer from "./checkpoint-timer";
 type Tab = "map" | "collection" | "trades" | "leaderboard";
 const paths: Record<Tab, string> = {
   map: "/",
@@ -55,7 +59,15 @@ type Ranking = {
   score: number;
   attempts: number;
   completed?: number;
+  duration_ms?: number | null;
 };
+type TradeNotice = {
+  id: string;
+  username: string;
+  offered: string;
+  received: string;
+};
+type TradeReceipt = { username: string; given: string; received: string };
 async function api(url: string, body?: Record<string, unknown>) {
   const r = await fetch(
     url,
@@ -105,6 +117,10 @@ export default function Expedition({
   const [error, setError] = useState("");
   const [answer, setAnswer] = useState("");
   const [level, setLevel] = useState(0);
+  const [boardSort, setBoardSort] = useState<"points" | "time">("points");
+  const [notices, setNotices] = useState<TradeNotice[]>([]);
+  const [tradeReceipt, setTradeReceipt] = useState<TradeReceipt | null>(null);
+  const [saleItem, setSaleItem] = useState<string | null>(null);
   const [boardRevision, setBoardRevision] = useState(0);
   const [rankings, setRankings] = useState<Ranking[]>([]);
   const [boardLoading, setBoardLoading] = useState(false);
@@ -132,7 +148,9 @@ export default function Expedition({
     puzzleOpen ||
     helpOpen ||
     resetOpen ||
-    !!packReward;
+    !!packReward ||
+    !!tradeReceipt ||
+    !!saleItem;
   const loadGame = useCallback(async () => {
     const [session, game] = await Promise.all([
       authClient.getSession(),
@@ -142,6 +160,7 @@ export default function Expedition({
     setProfile(game.profile);
     setProgress(game.progress);
     setInventory(game.inventory);
+    if (!game.profile) setNotices([]);
     return game;
   }, []);
   useEffect(() => {
@@ -167,6 +186,41 @@ export default function Expedition({
       dialogRef.current?.close();
     }
   }, [modal]);
+  const loadNotices = useCallback(async () => {
+    setNotices(await api("/api/notifications"));
+  }, []);
+  useEffect(() => {
+    if (!profile?.id) return;
+    let active = true;
+    let previousIds = "";
+    const refresh = async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const data = await api("/api/notifications");
+        if (active) {
+          setNotices(data);
+          const ids = data.map((n: TradeNotice) => n.id).join(",");
+          if (ids && ids !== previousIds) {
+            await loadGame();
+            if (active) setTrades(await api("/api/trades"));
+          }
+          previousIds = ids;
+        }
+      } catch {
+        /* Keep unread notifications until the next successful refresh. */
+      }
+    };
+    void refresh();
+    const timer = setInterval(refresh, 15000);
+    window.addEventListener("focus", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      active = false;
+      clearInterval(timer);
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, [profile?.id, loadGame]);
   const loadTrades = useCallback(async () => {
     setTrades(await api("/api/trades"));
   }, []);
@@ -175,10 +229,13 @@ export default function Expedition({
     let active = true;
     async function refreshScores() {
       try {
-        const response = await fetch(`/api/leaderboard?level=${level}`, {
-          signal: controller.signal,
-          cache: "no-store",
-        });
+        const response = await fetch(
+          `/api/leaderboard?level=${level}&sort=${boardSort}`,
+          {
+            signal: controller.signal,
+            cache: "no-store",
+          },
+        );
         const data = await response.json();
         if (!response.ok) throw new Error(data.error);
         if (active) setRankings(data);
@@ -216,7 +273,7 @@ export default function Expedition({
       window.removeEventListener("focus", refreshVisible);
       document.removeEventListener("visibilitychange", refreshVisible);
     };
-  }, [tab, level, loadTrades, boardRevision]);
+  }, [tab, level, boardSort, loadTrades, boardRevision]);
   function inspectCheckpoint(id: number) {
     setSelected(id);
     setDetailsOpen(true);
@@ -226,16 +283,31 @@ export default function Expedition({
     setMessage("");
     setError("");
   }
-  function browseCheckpoint(id: number) {
-    if (id < 1 || id > TOTAL_CHECKPOINTS || stateFor(id, progress) === "locked")
+  async function browseCheckpoint(id: number) {
+    if (
+      busy ||
+      id < 1 ||
+      id > TOTAL_CHECKPOINTS ||
+      stateFor(id, progress) === "locked"
+    )
       return;
-    setSelected(id);
-    setDetailsOpen(false);
-    setPuzzleOpen(true);
-    setAnswer("");
-    setHint(false);
-    setMessage("");
-    setError("");
+    if (!requireProfile()) {
+      setDetailsOpen(false);
+      return;
+    }
+    await run(async () => {
+      if (stateFor(id, progress) !== "completed") {
+        await api("/api/game", { action: "start", checkpoint: id });
+        await loadGame();
+      }
+      setSelected(id);
+      setDetailsOpen(false);
+      setPuzzleOpen(true);
+      setAnswer("");
+      setHint(false);
+      setMessage("");
+      setError("");
+    });
   }
   function closeModal() {
     setDetailsOpen(false);
@@ -244,6 +316,8 @@ export default function Expedition({
     setHelpOpen(false);
     setResetOpen(false);
     setPackReward(null);
+    setTradeReceipt(null);
+    setSaleItem(null);
     setMessage("");
     setError("");
   }
@@ -349,7 +423,13 @@ export default function Expedition({
   async function tradeAction(action: string, id?: string) {
     if (!requireProfile()) return;
     await run(async () => {
-      await api("/api/game", { action, id, offered: selectedOffer, requested });
+      const receipt = await api("/api/game", {
+        action,
+        id,
+        offered: selectedOffer,
+        requested,
+      });
+      if (action === "accept") setTradeReceipt(receipt);
       await Promise.all([loadGame(), loadTrades()]);
       setMessage(
         action === "trade"
@@ -361,14 +441,7 @@ export default function Expedition({
     });
   }
   function startPuzzle() {
-    setDetailsOpen(false);
-    if (status === "locked") return;
-    if (!requireProfile()) return;
-    setAnswer("");
-    setHint(false);
-    setMessage("");
-    setError("");
-    setPuzzleOpen(true);
+    void browseCheckpoint(selected);
   }
   return (
     <div className="app-shell">
@@ -391,6 +464,14 @@ export default function Expedition({
             >
               <n.icon size={19} />
               <span>{n.label}</span>
+              {n.id === "trades" && notices.length ? (
+                <span
+                  className="nav-notification"
+                  aria-label={`${notices.length} unread trade notifications`}
+                >
+                  {notices.length}
+                </span>
+              ) : null}
               {tab === n.id ? <ChevronRight size={15} /> : null}
             </button>
           ))}
@@ -627,10 +708,7 @@ export default function Expedition({
                   <h2>The sealed field satchel</h2>
                   <p>
                     A satchel draws one of 24 artifacts and costs 400 coins
-                    earned from solving clues. Both packs and completed
-                    checkpoints use the same chances. Duplicates can be traded,
-                    and completing the route does not guarantee the full
-                    collection.
+                    earned from solving clues.
                   </p>
                   <details>
                     <summary>See drop chances</summary>
@@ -704,6 +782,18 @@ export default function Expedition({
                             <small className="artifact-chance">
                               {t.weight / 4}% chance per draw
                             </small>
+                            {quantity ? (
+                              <button
+                                className="text-button sell-treasure"
+                                disabled={busy}
+                                onClick={() => {
+                                  setError("");
+                                  setSaleItem(t.id);
+                                }}
+                              >
+                                Sell one · {sellPrices[t.rarity]} coins
+                              </button>
+                            ) : null}
                             <div className="treasure-bottom">
                               <span>
                                 {quantity
@@ -760,6 +850,31 @@ export default function Expedition({
                       <ChevronDown size={14} />
                     </label>
                   </div>
+                  <div
+                    className="score-toggle"
+                    role="group"
+                    aria-label="Rank explorers by"
+                  >
+                    <button
+                      aria-pressed={boardSort === "points"}
+                      onClick={() => setBoardSort("points")}
+                    >
+                      Highest points
+                    </button>
+                    <button
+                      aria-pressed={boardSort === "time"}
+                      onClick={() => setBoardSort("time")}
+                    >
+                      Fastest time
+                    </button>
+                  </div>
+                  <p className="timing-note">
+                    {boardSort === "time" && level === 0
+                      ? "Full-expedition times include all 60 timed checkpoints."
+                      : "Time runs from the first opening of a puzzle until its successful answer, including time spent away."}{" "}
+                    Earlier completions without a recorded timer keep their
+                    points.
+                  </p>
                   <table>
                     <thead>
                       <tr>
@@ -768,7 +883,8 @@ export default function Expedition({
                         <th>
                           {level === 0 ? "Completed" : "Stars / attempts"}
                         </th>
-                        <th>Score</th>
+                        <th>Points</th>
+                        <th>Time</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -785,6 +901,9 @@ export default function Expedition({
                                   {r.username[0].toUpperCase()}
                                 </span>
                                 {r.username}
+                                {r.completed === 60 ? (
+                                  <CompletionBadge />
+                                ) : null}
                               </td>
                               <td>
                                 {level === 0 ? (
@@ -807,6 +926,7 @@ export default function Expedition({
                               <td>
                                 <strong>{r.score.toLocaleString()}</strong> pts
                               </td>
+                              <td>{formatTime(r.duration_ms)}</td>
                             </tr>
                           ))
                         : null}
@@ -819,7 +939,11 @@ export default function Expedition({
                   ) : !rankings.length ? (
                     <div className="empty-state">
                       <Trophy size={38} strokeWidth={1} />
-                      <h3>No scores have been recorded yet</h3>
+                      <h3>
+                        {boardSort === "time"
+                          ? "No eligible times have been recorded yet"
+                          : "No scores have been recorded yet"}
+                      </h3>
                       <p>
                         Complete a checkpoint while signed in to add your score
                         to the register.
@@ -890,6 +1014,34 @@ export default function Expedition({
                 title="The trading post"
                 text="Browse other explorers’ offers or exchange a duplicate for an artifact missing from your cabinet."
               />
+              {notices.map((n) => (
+                <div className="trade-notice" key={n.id} role="status">
+                  <div>
+                    <strong>{n.username} accepted your trade.</strong>
+                    <p>
+                      You gave {treasures.find((t) => t.id === n.offered)?.name}{" "}
+                      and received{" "}
+                      {treasures.find((t) => t.id === n.received)?.name}.
+                    </p>
+                  </div>
+                  <button
+                    className="icon-button"
+                    aria-label={`Dismiss trade notification from ${n.username}`}
+                    disabled={busy}
+                    onClick={() =>
+                      run(async () => {
+                        await api("/api/game", {
+                          action: "acknowledge",
+                          id: n.id,
+                        });
+                        await Promise.all([loadNotices(), loadGame()]);
+                      })
+                    }
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              ))}
               <section className="panel trade-form">
                 <div>
                   <h2>Record an offer</h2>
@@ -1020,17 +1172,53 @@ export default function Expedition({
             ? `Checkpoint ${selected}: ${cp.name}`
             : authOpen
               ? "Explorer account"
-              : resetOpen
-                ? "Reset expedition progress"
-                : helpOpen
-                  ? "How to play"
-                  : "Treasure discovery"
+              : tradeReceipt
+                ? "Trade confirmed"
+                : saleItem
+                  ? "Sell treasure"
+                  : resetOpen
+                    ? "Reset expedition progress"
+                    : helpOpen
+                      ? "How to play"
+                      : "Treasure discovery"
         }
         onCancel={closeModal}
         onClick={(e) => {
           if (e.target === e.currentTarget) closeModal();
         }}
       >
+        {detailsOpen || puzzleOpen ? (
+          <nav
+            className="checkpoint-edge-navigation"
+            aria-label="Browse checkpoints"
+          >
+            <button
+              className="text-button"
+              disabled={
+                busy ||
+                selected <= 1 ||
+                stateFor(selected - 1, progress) === "locked"
+              }
+              onClick={() => browseCheckpoint(selected - 1)}
+            >
+              <ChevronLeft size={22} />
+              <span className="sr-only">Previous checkpoint</span>
+            </button>
+            <span className="sr-only">Checkpoint {selected} of 60</span>
+            <button
+              className="text-button"
+              disabled={
+                busy ||
+                selected >= TOTAL_CHECKPOINTS ||
+                stateFor(selected + 1, progress) === "locked"
+              }
+              onClick={() => browseCheckpoint(selected + 1)}
+            >
+              <span className="sr-only">Next checkpoint</span>
+              <ChevronRight size={22} />
+            </button>
+          </nav>
+        ) : null}
         <div className="modal-inner">
           <button
             className="modal-close icon-button"
@@ -1051,6 +1239,68 @@ export default function Expedition({
                 nextAvailable && inspectCheckpoint(nextAvailable)
               }
             />
+          ) : null}
+          {tradeReceipt ? (
+            <section className="trade-receipt">
+              <div className="eyebrow">EXCHANGE RECORDED</div>
+              <h2>Your trade is complete</h2>
+              <p>
+                You gave{" "}
+                {treasures.find((t) => t.id === tradeReceipt.given)?.name} to{" "}
+                {tradeReceipt.username} and received{" "}
+                {treasures.find((t) => t.id === tradeReceipt.received)?.name}.
+              </p>
+              <div className="receipt-art">
+                <TreasureArt kind={tradeReceipt.given} />
+                <ArrowRight size={24} />
+                <TreasureArt kind={tradeReceipt.received} />
+              </div>
+              <p>Your collection has been updated.</p>
+              <button className="button" onClick={closeModal}>
+                Back to the trading post
+              </button>
+            </section>
+          ) : null}
+          {saleItem ? (
+            <section>
+              <div className="eyebrow">COLLECTION EXCHANGE</div>
+              <h2>Sell this treasure?</h2>
+              <div className="sale-art">
+                <TreasureArt kind={saleItem} />
+              </div>
+              <p>
+                You will sell one{" "}
+                {treasures.find((t) => t.id === saleItem)?.name} for{" "}
+                {sellPrices[treasures.find((t) => t.id === saleItem)!.rarity]}{" "}
+                coins. You can keep any remaining copies.
+              </p>
+              <div className="checkpoint-navigation">
+                <button
+                  className="outline-button"
+                  disabled={busy}
+                  onClick={closeModal}
+                >
+                  Keep treasure
+                </button>
+                <button
+                  className="button"
+                  disabled={busy}
+                  onClick={() =>
+                    run(async () => {
+                      const result = await api("/api/game", {
+                        action: "sell",
+                        item: saleItem,
+                      });
+                      await loadGame();
+                      closeModal();
+                      setMessage(`Treasure sold for ${result.coins} coins.`);
+                    })
+                  }
+                >
+                  {busy ? "Selling…" : "Sell for coins"}
+                </button>
+              </div>
+            </section>
           ) : null}
           {resetOpen ? (
             <section className="reset-confirmation">
@@ -1099,36 +1349,6 @@ export default function Expedition({
                 </button>
               </div>
             </section>
-          ) : null}
-          {detailsOpen || puzzleOpen ? (
-            <nav
-              className="checkpoint-navigation"
-              aria-label="Browse checkpoints"
-            >
-              <button
-                className="text-button"
-                disabled={
-                  busy ||
-                  selected <= 1 ||
-                  stateFor(selected - 1, progress) === "locked"
-                }
-                onClick={() => browseCheckpoint(selected - 1)}
-              >
-                <ChevronLeft size={16} /> Previous
-              </button>
-              <span>{selected} / 60</span>
-              <button
-                className="text-button"
-                disabled={
-                  busy ||
-                  selected >= TOTAL_CHECKPOINTS ||
-                  stateFor(selected + 1, progress) === "locked"
-                }
-                onClick={() => browseCheckpoint(selected + 1)}
-              >
-                Next <ChevronRight size={16} />
-              </button>
-            </nav>
           ) : null}
           {authOpen ? (
             <>
@@ -1236,6 +1456,9 @@ export default function Expedition({
                 completed={status === "completed"}
               />
               <p>{cp.subtitle}</p>
+              <CheckpointTimer
+                record={progress.find((p) => p.checkpoint === selected)}
+              />
               <div className="puzzle-clue">
                 <span className="eyebrow">{cp.kind}</span>
                 <p>{cp.prompt}</p>
@@ -1275,19 +1498,7 @@ export default function Expedition({
                   >
                     View this checkpoint’s high scores
                   </button>
-                  {selected < TOTAL_CHECKPOINTS ? (
-                    <button
-                      className="button"
-                      onClick={() => {
-                        browseCheckpoint(selected + 1);
-                        setAnswer("");
-                        setHint(false);
-                        setMessage("");
-                      }}
-                    >
-                      Next checkpoint <ArrowRight size={16} />
-                    </button>
-                  ) : (
+                  {selected === TOTAL_CHECKPOINTS ? (
                     <button
                       className="button"
                       onClick={() => {
@@ -1297,7 +1508,7 @@ export default function Expedition({
                     >
                       See my treasures <Gem size={16} />
                     </button>
-                  )}
+                  ) : null}
                 </div>
               ) : (
                 <>

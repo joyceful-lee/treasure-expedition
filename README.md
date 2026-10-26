@@ -88,3 +88,12 @@ The collection groups artifacts by rarity, and trade offers list only owned, unr
 The leaderboard defaults to the top ten cumulative scores, with individual checkpoint boards in the selector. Checkpoint dialogs support previous/next browsing, and the map maintains its 5:3 aspect ratio.
 
 `db/expedition-v4.sql` adds lifetime reward claims and archived reset history. An authenticated, same-origin reset request requires explicit confirmation and clears only that account's progress and leaderboard entries; inventory, coins, and trades remain. Previously claimed checkpoint rewards cannot be farmed after restarting. `db/verify-expedition-v4.sql` verifies reset isolation, archives, replay protection, scores, and pack pricing using rolled-back fixtures. Owner answer keys belong in ignored local `outputs/`, never public routes or client imports.
+
+
+## Trade receipts, collection sales, and timing
+
+`db/expedition-v5.sql` adds private unread trade notifications for the maker, server timestamps for checkpoint timing, and catalog sale prices. Accepted exchanges return an immediate receipt to the taker, while the maker sees a Trading Post badge and dismissible message. Notifications refresh while the page is visible and when it regains focus. Both current and legacy trade offers are supported.
+
+A confirmed sale removes one available artifact and credits its rarity price atomically: Common 40, Uncommon 100, Rare 240, Epic 600, Legendary 1,500. Escrowed items cannot be sold. Checkpoint timers begin at the first opening of a puzzle and continue while closed; historical untimed completions retain points and show “Not timed.” The time leaderboard excludes those entries, and a cumulative time requires 60 timed completions. Every board displays a completion emblem for players with all 60 current checkpoints complete.
+
+The revised cipher clues use a reference Morse codebook, prime-position extraction plus a shift, a twelve-letter rail cipher plus a shift, and a secondary Atbash layer in the ruins rotor. `db/verify-expedition-v5.sql` exercises notifications, receipts, selling, escrow protection, persistent timers, full-route eligibility and reset behavior with rolled-back fixtures.

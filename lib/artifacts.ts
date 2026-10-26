@@ -193,3 +193,11 @@ export const rarityChances = [
       totalArtifactWeight) *
     100,
 }));
+
+export const sellPrices: Record<string, number> = {
+  Common: 40,
+  Uncommon: 100,
+  Rare: 240,
+  Epic: 600,
+  Legendary: 1500,
+};

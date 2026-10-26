@@ -70,9 +70,24 @@ test("number, cipher, and deduction clues independently produce the expected ans
   );
   assert.ok(isCorrect(21, shiftText("WUHDVXUH", 3)));
   assert.equal(shiftText("ZOPMA MPCL", 7), "SHIFT FIVE");
+  const secondary = shiftText("RNWWTW FQUMFGJY: LXA YELA QPARM EL BEIR", 5);
+  assert.equal(secondary, "MIRROR ALPHABET: GSV TZGV LKVMH ZG WZDM");
   assert.equal(
-    shiftText("YMJ LFYJ TUJSX FY IFBS", 5),
+    [...secondary.split(": ")[1]]
+      .map((c) =>
+        /[A-Z]/.test(c) ? String.fromCharCode(90 - (c.charCodeAt(0) - 65)) : c,
+      )
+      .join(""),
     "THE GATE OPENS AT DAWN",
+  );
+  const extracted = [2, 3, 5, 7, 11]
+    .map((n) => "LTQNWZVQCDGHS"[n - 1])
+    .join("");
+  assert.equal(shiftText(extracted, 2), "ROUTE");
+  const rails = shiftText("FQHYWRRVUDLQ", 3);
+  assert.equal(
+    Array.from({ length: 6 }, (_, i) => rails[i] + rails[i + 6]).join(""),
+    "CONSERVATION",
   );
   const candidates = [];
   for (let n = 100; n < 1000; n++) {

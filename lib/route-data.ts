@@ -179,18 +179,18 @@ const clues: Clue[][] = [
     ],
     [
       "Signal Chamber",
-      "Decode the Morse message -. / --- / .-. / - / .... . The needed letters are N=-., O=---, R=.-., T=-, H=.... .",
-      "Read one letter between each slash.",
+      "A signal log contains -. / --- / .-. / - / .... . Decode it using this reference codebook: A .-; H ....; I ..; N -.; O ---; R .-.; S ...; T -; U ..-; W .-- . Which direction does the message name?",
+      "Match each complete group between the slashes to one codebook entry; the codebook is not in message order.",
     ],
     [
       "False Scratches",
-      "The stone reads SxExAxLx. Every second character is a scratch added to hide the real word. What remains?",
-      "Keep positions 1, 3, 5, and 7.",
+      "An inscription reads LTQNWZVQCDGHS. A tally marks positions 2, 3, 5, 7, 11 as genuine; count from 1, discard the other letters, then move each surviving letter back two places in the alphabet. What word emerges?",
+      "The marked positions are the prime numbers below 13. Extract first, then undo the shift.",
     ],
     [
       "Twin Rails",
-      "A scribe split a six-letter word into its odd-position letters and even-position letters, then joined the two groups as SCEERT. Reconstruct the word.",
-      "Interleave SCE and ERT.",
+      "A scribe wrote a twelve-letter word across two rails, putting letters 1, 3, 5 and so on on the upper rail. The rails were joined, then each letter shifted forward three places to read FQHYWRRVUDLQ. Reverse both operations to recover the word for keeping old objects safe.",
+      "Undo the three-place shift, split the twelve letters into two groups of six, then alternate between the groups.",
     ],
     [
       "The Repeating Key",
@@ -364,8 +364,8 @@ const finales: {
     name: "The Sunken Ruins",
     challenge: "rotors",
     prompt:
-      "Use the outer rotor to recover an instruction from ZOPMA MPCL, then apply that instruction to the inner inscription YMJ LFYJ TUJSX FY IFBS. Reverse the final word of the inner inscription to open the chamber.",
-    hint: "Each rotor subtracts its shift from every letter. The outer instruction tells you how to set the inner rotor.",
+      "Use the outer rotor to recover an instruction from ZOPMA MPCL, then apply that instruction to the inner inscription RNWWTW FQUMFGJY: LXA YELA QPARM EL BEIR. The inner inscription uses a second cipher after the shift. Decode that message, then reverse its final word to open the chamber.",
+    hint: "Each rotor subtracts its shift from every letter. The outer instruction sets the inner rotor. The inner heading names another cipher; in a mirror alphabet, A pairs with Z, B with Y, and so on.",
   },
   {
     name: "Serpent Pass",

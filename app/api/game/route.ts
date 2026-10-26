@@ -13,7 +13,7 @@ export async function GET() {
     const uid = session.user.id;
     const [profiles, progress, inventory] = await Promise.all([
       sql`SELECT id,username,coins FROM expedition.users WHERE id=${uid}`,
-      sql`SELECT checkpoint,attempts,completed_at,score,treasure_id FROM expedition.route_progress WHERE user_id=${uid}`,
+      sql`SELECT checkpoint,attempts,completed_at,score,treasure_id,started_at,duration_ms::double precision AS duration_ms FROM expedition.route_progress WHERE user_id=${uid}`,
       sql`SELECT treasure_id,quantity FROM expedition.all_inventory WHERE user_id=${uid} AND quantity>0`,
     ]);
     return NextResponse.json({
@@ -55,6 +55,38 @@ export async function POST(request: NextRequest) {
           { status: 400 },
         );
       await sql`INSERT INTO expedition.users(id,username) VALUES(${uid},${body.username}) ON CONFLICT(id) DO NOTHING`;
+      return NextResponse.json({ ok: true });
+    }
+    if (body.action === "start") {
+      if (
+        !Number.isInteger(body.checkpoint) ||
+        body.checkpoint < 1 ||
+        body.checkpoint > 60
+      )
+        return NextResponse.json(
+          { error: "Choose a valid checkpoint." },
+          { status: 400 },
+        );
+      await sql`SELECT expedition.begin_checkpoint(${uid}::uuid,${body.checkpoint}::integer)`;
+      return NextResponse.json({ ok: true });
+    }
+    if (body.action === "sell") {
+      if (typeof body.item !== "string")
+        return NextResponse.json(
+          { error: "Choose a treasure to sell." },
+          { status: 400 },
+        );
+      const rows =
+        await sql`SELECT expedition.sell_artifact(${uid}::uuid,${body.item}) AS coins`;
+      return NextResponse.json(rows[0]);
+    }
+    if (body.action === "acknowledge") {
+      if (typeof body.id !== "string" || !/^[0-9a-f-]{36}$/i.test(body.id))
+        return NextResponse.json(
+          { error: "Choose a valid notification." },
+          { status: 400 },
+        );
+      await sql`UPDATE expedition.trade_notifications SET read_at=clock_timestamp() WHERE id=${body.id}::uuid AND user_id=${uid}::uuid AND read_at IS NULL`;
       return NextResponse.json({ ok: true });
     }
     if (body.action === "answer") {
@@ -105,8 +137,9 @@ export async function POST(request: NextRequest) {
           { error: "Choose a valid trade." },
           { status: 400 },
         );
-      await sql`SELECT expedition.finish_artifact_trade(${uid}::uuid,${body.id}::uuid,${body.action === "cancel"}::boolean)`;
-      return NextResponse.json({ ok: true });
+      const rows =
+        await sql`SELECT expedition.exchange_artifact_trade(${uid}::uuid,${body.id}::uuid,${body.action === "cancel"}::boolean) AS result`;
+      return NextResponse.json(rows[0].result);
     }
     return NextResponse.json(
       { error: "Unknown expedition action." },

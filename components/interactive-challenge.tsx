@@ -268,7 +268,7 @@ export default function InteractiveChallenge({
             />
           </label>
           <output className="decoded-inscription" aria-live="polite">
-            {shiftText("YMJ LFYJ TUJSX FY IFBS", inner)}
+            {shiftText("RNWWTW FQUMFGJY: LXA YELA QPARM EL BEIR", inner)}
           </output>
           <label>
             Final word, reversed

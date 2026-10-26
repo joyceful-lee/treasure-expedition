@@ -232,17 +232,31 @@ export default function MapArt() {
           <path d="M147 445q-61-61-20-121t54-110 89-61 115-21M164 441q-46-60-11-106t50-110 84-51M296 482q73 42 130 26t106 10M315 471q62 30 112 18m331-72q69 20 116-34t38-108M777 403q57 12 88-27m-99-297q51-17 94 8t53 62M490 136q32-45 79-30m-46 42q31-25 48-25" />
         </g>
         <path
-          d="M648 112q45 31 46 75t23 69q13 26-9 60t-6 68q8 43-14 73t-24 61l10 50-39 1 12-42q-4-33 15-68t13-70q-13-41 9-77t6-58q-24-40-19-69t-28-67Z"
-          fill="#a4beb1"
+          d="M643 112C674 138 680 156 679 183C678 209 692 224 699 250C709 273 694 294 688 316C677 342 684 361 688 384C694 414 678 445 667 467C651 495 650 526 643 562L675 565C659 529 668 492 681 472C700 442 709 412 702 382C696 358 692 344 704 319C725 288 726 271 715 246C706 221 696 208 695 182C694 150 677 126 650 108Z"
+          fill="#9bb7a9"
+          stroke="#8ba491"
+          strokeWidth="1"
         />
         <path
-          d="M652 119q37 36 33 73t23 68q7 23-13 56t-7 68q5 44-16 74t-22 69"
+          d="M646 116C675 143 682 158 683 183C682 209 695 228 703 251C714 280 695 299 693 318C682 346 688 364 692 384C698 416 681 447 672 468C656 502 657 525 652 547"
           fill="none"
-          stroke="#dce4ce"
-          strokeWidth="2"
-          opacity=".8"
+          stroke="#dce6d0"
+          strokeWidth="2.2"
+          opacity=".85"
         />
-        <ellipse cx="646" cy="111" rx="14" ry="9" fill="#a4beb1" />
+        <path
+          d="m690 177 3 8m9 63 4 9m-15 73-3 10m5 58-1 10m-17 58-5 10"
+          stroke="#789e91"
+          fill="none"
+          strokeWidth="1.2"
+        />
+        <ellipse cx="646" cy="111" rx="14" ry="9" fill="#9bb7a9" />
+        <path
+          d="M636 109q10-5 18 1m-15 5q7 3 12 0"
+          fill="none"
+          stroke="#dce6d0"
+          strokeWidth="1"
+        />
         {forest
           .sort((a, b) => a.y - b.y)
           .map((p, i) => (
@@ -254,11 +268,50 @@ export default function MapArt() {
             <Peak key={i} {...p} />
           ))}
         <g stroke="#8d7d57" fill="#dbcb9e" strokeWidth="1.2">
-          <g transform="translate(136 95) scale(.6)">
-            <path d="M316 254h48v7h-48ZM322 254v-20h8v20m20 0v-20h8v20M316 234l24-17 24 17Z" />
+          <g transform="translate(340 244) scale(.8)">
+            <path
+              d="M-25 13h50v5h-50Zm5 0V-9h12v22m16 0V-9h12v22M-24-9h48v-5h-48Z"
+              fill="#c4bd94"
+            />
+            <path d="M-8 13V3Q0-13 8 3v10" fill="#84947c" />
+            <path d="M-24-14l9-7 8 7m14 0 8-7 9 7M-22 18h44" fill="#d9cda7" />
+            <path
+              d="M-18-6h6m0 6h-6m6 6h-6M12-6h6m-6 6h6m-6 6h6M-6-7h12"
+              stroke="#9d9878"
+            />
+            <path
+              d="M-24 8q8-7 4-16m43 23q-9-7-5-17"
+              stroke="#6f8860"
+              strokeWidth="2"
+              fill="none"
+            />
+            <path
+              d="m-22 0-6-2 2-5m47 11 5-3 1 6"
+              stroke="#6f8860"
+              fill="none"
+            />
           </g>
-          <g transform="translate(0 -10)">
-            <path d="M480 369h61v8h-61Zm5 0v-25h8v25m14 0v-25h8v25m15 0v-25h8v25M477 344l33-18 34 18Z" />
+          <g transform="translate(507 342)">
+            <path d="M-28 18h60v5h-60Zm-5 5h70v5h-70" fill="#b9b28e" />
+            <path
+              d="M-24 18V-9h8v27m7 0V-5h7v23m9 0V-9h8v27m8 0V1h8v17"
+              fill="#d5c8a0"
+            />
+            <path d="M-29-9 0-28 31-9H9l-9-6-9 6Z" fill="#d9ccaa" />
+            <path
+              d="m-21-14 21-14 9 6m6 4 12 8M-24-5h8m7 5h7m9-5h8m8 10h8M-24 14h8m-9-1h3m26 10h21"
+              stroke="#a09573"
+              fill="none"
+            />
+            <path
+              d="m25-12 8 1-3 7-8-1Zm-55 24 7-1 3 7h-12Zm42 16 9-2 6 5h-15"
+              fill="#c5bd9a"
+            />
+            <path
+              d="M-31 24q8-8 13-2m32-3q6-8 10-5"
+              stroke="#819278"
+              fill="none"
+            />
           </g>
           <g transform="translate(843 91) scale(.75)">
             <path
@@ -319,22 +372,50 @@ export default function MapArt() {
         strokeLinejoin="round"
       />
       <g
-        transform="translate(699 250) rotate(-64)"
-        stroke="#655e45"
-        fill="#bfb08b"
+        transform="translate(699 250) rotate(26)"
+        stroke="#74664b"
+        strokeWidth="1"
       >
-        <path d="M-7-12H7v24H-7Z" />
-        <path d="M-6-8H6m-12 5H6M-6 2H6m-12 5H6" strokeWidth=".7" />
+        <path
+          d="M-23 10q22 9 46 0v5h-46Z"
+          fill="#677968"
+          opacity=".35"
+          stroke="none"
+        />
+        <path d="M-24-8h48v16h-48Z" fill="#c6b38b" />
+        {[-18, -12, -6, 0, 6, 12, 18].map((x) => (
+          <path key={x} d={`M${x}-7V7`} stroke="#9b8863" strokeWidth=".8" />
+        ))}
+        <path
+          d="M-26-12h52M-26 12h52m-48-26v7m10-7v7m12-7v7m12-7v7m10-7v7m-44 14v7m10-7v7m12-7v7m12-7v7m10-7v7"
+          fill="none"
+          strokeWidth="1.4"
+        />
+        <path d="M-26-7v14m52-14v14" stroke="#e6d1a0" />
       </g>
       <g
-        transform="translate(91 461) rotate(-18)"
-        stroke="#8d7652"
-        strokeWidth="1.2"
-        fill="#bba779"
+        transform="translate(90 461) rotate(-15)"
+        stroke="#806849"
+        strokeWidth="1.1"
       >
-        <path d="M-19 1q19 15 38 0l-5 9h-28Z" />
-        <path d="M0 0v-34L-15-3H0m4-24 12 22H4Z" fill="#f0e3bf" />
-        <path d="M-28 16q15-4 28 0t25 0" fill="none" stroke="#90a896" />
+        <path d="M-24 3q23 12 48-2l-10 15H-10Z" fill="#a08055" />
+        <path d="M-20 5q19 6 36 1m-31 5h24" stroke="#d9bd85" fill="none" />
+        <path d="M-1 3v-43" strokeWidth="2" />
+        <path d="M-4-37q-5 16-20 33l20-3Z" fill="#eee1bc" />
+        <path d="M3-34q21 11 17 31L3-7Z" fill="#e5d3a8" />
+        <path
+          d="M-3-37 20-3m-20-1 15 17m-16-14-14 13"
+          fill="none"
+          stroke="#a38b5b"
+          strokeWidth=".65"
+        />
+        <path d="M-1-40 10-37-1-34" fill="#8a5945" />
+        <path
+          d="M-31 19q14-4 26 0t28-1m-48 6q12-3 25 0m15-1h11"
+          fill="none"
+          stroke="#8ca799"
+          strokeWidth=".8"
+        />
       </g>
       <g transform="translate(81 104)" stroke="#596c56" fill="none">
         <circle r="31" strokeWidth=".7" />

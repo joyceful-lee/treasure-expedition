@@ -14,6 +14,8 @@ export type Progress = {
   completed_at: string | null;
   score: number;
   treasure_id?: string | null;
+  started_at?: string | null;
+  duration_ms?: number | null;
 };
 export type Profile = { id: string; username: string; coins: number };
 export type Item = { treasure_id: string; quantity: number };

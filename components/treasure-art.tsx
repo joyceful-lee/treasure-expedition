@@ -3,18 +3,23 @@ import { useId } from "react";
 const newDrawings: Record<string, React.ReactNode> = {
   coin: (
     <>
-      <ellipse cx="81" cy="85" rx="46" ry="44" fill="#6f744e" />
-      <circle cx="78" cy="79" r="44" fill="#b49358" />
-      <circle cx="78" cy="79" r="37" stroke="#dfc589" strokeWidth="2" />
-      <circle cx="78" cy="79" r="33" stroke="#7c744c" strokeDasharray="1 5" />
+      <ellipse cx="82" cy="85" rx="45" ry="44" fill="#79684c" />
+      <circle cx="78" cy="80" r="44" fill="#b78354" />
+      <circle cx="78" cy="80" r="38" fill="#c69661" stroke="#e1bd83" />
+      <circle cx="78" cy="80" r="33" stroke="#876541" strokeDasharray="1 4" />
+      <path d="M54 89q25 11 49-2L91 102H65Z" fill="#876b48" />
+      <path d="M77 86V55M73 59 58 82h15Zm8-1 15 23H81Z" fill="#ddba7b" />
       <path
-        d="M78 52v43m-15-31h30M61 78q17 34 34 0l-8 4m-26-4 8 4"
-        stroke="#665e3f"
+        d="M54 107q10-4 20 0t21-1m-31 7q9-3 20 0"
+        fill="none"
+        stroke="#755f41"
+      />
+      <path
+        d="m48 57 5-4m52 35 3-6M48 100l7 5"
+        stroke="#688374"
         strokeWidth="3"
       />
-      <path d="m48 55 4-5m51 48 5-5M43 78l4 7m46-45 6 4" stroke="#e1ca92" />
-      <path d="M43 100q12 17 34 18" stroke="#d6b87a" />
-      <path d="m57 49 6 2m33 53-4 6" stroke="#65795d" strokeWidth="3" />
+      <path d="M45 70q-3 17 4 28" stroke="#e5c68c" />
     </>
   ),
   shard: (
@@ -55,27 +60,54 @@ const newDrawings: Record<string, React.ReactNode> = {
   bead: (
     <>
       <path
-        d="M74 43q-35-38-46 4-9 52 49 78 49-19 55-49 5-21-17-35"
-        stroke="#a18b60"
-        strokeWidth="3"
+        d="M66 50Q39 17 30 44q-9 26 27 53m35 1q37-31 35-53-2-21-24-10"
+        fill="none"
+        stroke="#a88d61"
+        strokeWidth="2.5"
       />
-      <ellipse cx="80" cy="82" rx="31" ry="36" fill="#ba784e" />
-      <ellipse cx="80" cy="52" rx="9" ry="6" fill="#584739" />
-      <path d="M65 67q-12 24 5 40m11-45v44m12-35q9 14 0 28" stroke="#e0aa72" />
-      <path d="M80 34v19" stroke="#c9b887" strokeWidth="3" />
+      <path
+        d="M56 58q23-18 46 1l12 43q-9 29-35 27-24-1-33-24Z"
+        fill="#ae6d49"
+      />
+      <path
+        d="M58 60q21-14 42 0l8 39q-14 24-48 13l-9-10Z"
+        fill="#c38758"
+        stroke="none"
+      />
+      <ellipse cx="79" cy="58" rx="22" ry="10" fill="#d39c6b" />
+      <ellipse cx="79" cy="58" rx="9" ry="5" fill="#684735" />
+      <path d="M79 43v16m-3-15 3 5 4-5" stroke="#d1b682" strokeWidth="2" />
+      <path
+        d="M53 82q27 14 54-1m-52 6q25 13 51 0M62 68q-7 20 1 35m33-34q7 19-1 34"
+        stroke="#e1ad77"
+      />
+      <path d="m68 118 7 3m16-4 5-3" stroke="#82553c" />
     </>
   ),
   button: (
     <>
-      <circle cx="80" cy="83" r="41" fill="#b69b64" />
-      <circle cx="80" cy="83" r="34" stroke="#e4c98e" />
-      <circle cx="80" cy="63" r="7" />
-      <path
-        d="M80 70v37m-14-27h28m-36 10q22 41 44 0l-10 4m-34-4 10 4"
-        stroke="#63583b"
-        strokeWidth="3"
+      <ellipse cx="82" cy="89" rx="39" ry="37" fill="#756b4d" />
+      <circle cx="79" cy="78" r="39" fill="#bc9b60" />
+      <circle cx="79" cy="78" r="33" fill="#d0b47b" stroke="#e4cc97" />
+      <circle cx="79" cy="78" r="28" stroke="#917a4e" strokeDasharray="1 3" />
+      <circle
+        cx="79"
+        cy="59"
+        r="5"
+        fill="none"
+        stroke="#786740"
+        strokeWidth="2"
       />
-      <path d="M48 66q-7 20 0 34" stroke="#efd9a3" />
+      <path
+        d="M79 64v30M67 72h24M62 81q17 31 34 0l-8 5m-26-5 8 5"
+        fill="none"
+        stroke="#786740"
+        strokeWidth="2.5"
+      />
+      <ellipse cx="70" cy="114" rx="3" ry="2" fill="#514c38" />
+      <ellipse cx="88" cy="114" rx="3" ry="2" fill="#514c38" />
+      <path d="m70 114 8 10 10-10m-18 0 10 6 8-6" stroke="#d9c8a0" />
+      <path d="M50 65q-4 12 0 23M91 49l7 4" stroke="#f0dbab" />
     </>
   ),
   key: (
@@ -130,14 +162,32 @@ const newDrawings: Record<string, React.ReactNode> = {
   ),
   tablet: (
     <>
-      <path d="m44 30 71 5 6 88-15 10-66-4-6-83Z" fill="#b88860" />
-      <path d="m44 30 3 90 74 3m-13-82 5 70" stroke="#ddba89" />
+      <path d="m45 31 61-3 14 11 3 78-13 16-64-2-12-14 1-72Z" fill="#a9734f" />
+      <path d="m47 33 58-2 11 10 3 75-12 12-58-2-10-10 1-69Z" fill="#c08d62" />
+      <path d="M47 42h57m-58 74 55 2M43 49l-1 55" stroke="#ddba88" />
       <path
-        d="m56 51 14 13 18-13 13 22-26 19-19-13m14-15 5 28m13-41 6 42m-36 17h44"
-        stroke="#765439"
+        d="m55 87 14-24 20-12 18 28-22 23-30-15m14-24 16 39m4-51-4 51"
+        stroke="#805c42"
+        strokeWidth="2.5"
       />
-      <circle cx="70" cy="64" r="3" fill="#765439" />
-      <circle cx="88" cy="51" r="3" fill="#765439" />
+      <path
+        d="m54 85 14-24 20-12 18 28-22 23-30-15"
+        stroke="#deb184"
+        strokeWidth=".8"
+      />
+      {[
+        [55, 87],
+        [69, 63],
+        [89, 51],
+        [107, 79],
+        [85, 102],
+      ].map(([x, y], i) => (
+        <g key={i}>
+          <circle cx={x} cy={y} r="3.5" fill="#825c40" stroke="none" />
+          <path d={`M${x - 2} ${y + 2}h3`} stroke="#dfb386" />
+        </g>
+      ))}
+      <path d="m48 107 4 3m51-64 5 3m-8 64 5-2" stroke="#8c694b" />
     </>
   ),
   astrolabe: (
@@ -205,17 +255,19 @@ const newDrawings: Record<string, React.ReactNode> = {
   brooch: (
     <>
       <path
-        d="M32 93q20-57 54-45 23-14 36 4l19 3-24 9q-9 49-53 41l-29 24 11-29Z"
-        fill="#5c9296"
+        d="M44 108q-6-21 9-39 14-18 37-13 9-18 26-8l17 9-18 7q2 23-18 35l-28 8-27 26 7-26Z"
+        fill="#4c8c91"
       />
-      <path d="M47 88q26-38 52-13L70 99Z" fill="#3e6c83" />
+      <path d="M60 75q21-16 33-1-1 24-28 30l-13 17 10-25Z" fill="#326678" />
+      <path d="M93 66q20 7 11 23-7 12-20 13l-13 4 9-26Z" fill="#c8844d" />
+      <path d="M109 54 139 59 114 64" fill="#c9baa0" />
       <path
-        d="m70 99-28 17m46-15-4 26m6-5h12M100 54h6"
-        stroke="#d9bc7b"
-        strokeWidth="2"
+        d="M63 76q14-11 25-5m-28 14 22-10m-20 19 18-11m-27 39 13-16M87 105l-4 13m13-17-2 17"
+        stroke="#9eb5a2"
       />
-      <path d="m117 59 24-4-22 11" fill="#cecbb1" />
-      <circle cx="108" cy="53" r="2" fill="#222f30" />
+      <path d="M55 120h55m-10-3 8 3-8 3" stroke="#ba9655" strokeWidth="2" />
+      <circle cx="110" cy="53" r="2.5" fill="#233a3d" />
+      <path d="m101 55 6 4" stroke="#e6d5ab" strokeWidth="2" />
     </>
   ),
   idol: (
@@ -252,17 +304,33 @@ const newDrawings: Record<string, React.ReactNode> = {
   ),
   orb: (
     <>
-      <circle cx="80" cy="70" r="40" fill="#6d95a8" />
+      <path d="M57 115h46l7 18H50Z" fill="#ab8b51" />
+      <ellipse cx="80" cy="135" rx="33" ry="5" fill="#b89c62" />
+      <circle cx="80" cy="71" r="40" fill="#6c91a1" stroke="#5c7680" />
       <path
-        d="M51 48q25-26 48-4M50 84q30 17 58-9M65 34q-16 34 15 75m10-76q26 33-10 76"
-        stroke="#b6ccd0"
+        d="M45 67q6-30 35-32 31 0 36 30-24-19-36 4-20-13-35-2Z"
+        fill="#9fb6bd"
+        stroke="none"
       />
       <path
-        d="M42 65q-3 48 38 57 41-9 38-57M80 122v13m-22 1h44"
-        stroke="#ab8f54"
+        d="M50 75q3-13 16-10 4-15 18-9 12-11 22 2 13 1 10 15H50Z"
+        fill="#617c8d"
+        stroke="none"
+      />
+      <path d="m85 70-13 17h12l-10 16" stroke="#e9e2b9" strokeWidth="2" />
+      <path
+        d="M53 48q11-13 27-13m-30 20-2 8m10 28q8 9 20 10"
+        stroke="#dbe4d5"
+        strokeWidth="2"
+      />
+      <path
+        d="M44 80q2 37 36 42 34-5 36-42m-36 30v15"
+        fill="none"
+        stroke="#b4995a"
         strokeWidth="4"
       />
-      <path d="m86 46-13 23h15L74 92" stroke="#e5e4cb" strokeWidth="2" />
+      <path d="M48 94q32 21 64 0" stroke="#dec18a" fill="none" />
+      <circle cx="80" cy="121" r="4" fill="#dac18c" />
     </>
   ),
   lyre: (
@@ -423,27 +491,30 @@ export default function TreasureArt({
       {kind === "scarab" ? (
         <g>
           <path
-            d="M56 66L33 49l-8 10m31 20L25 76l-7 12m40 5L32 111l-2 14m74-59 23-17 8 10m-31 20 31-3 7 12m-40 5 26 18 2 14"
-            stroke="#8e7545"
+            d="m55 66-20-9-10 8m28 12-27 4-8 13m38-2-25 16-2 15m76-57 20-9 10 8m-28 12 27 4 8 13m-38-2 25 16 2 15"
+            fill="none"
+            stroke="#987b47"
             strokeWidth="3"
           />
-          <path d="M60 53q-8-23 20-29 28 6 20 29" fill={`url(#${id}-metal)`} />
-          <ellipse cx="80" cy="85" rx="32" ry="43" fill={`url(#${id}-jade)`} />
+          <path d="M65 45q-6-22 15-23 21 1 15 23" fill={`url(#${id}-jade)`} />
           <path
-            d="M80 43v85M51 70q29 17 58 0M55 109q25-17 50 0"
-            stroke="#c2cc9a"
+            d="M58 51q22-14 44 0l8 33q0 36-30 48-30-12-30-48Z"
+            fill={`url(#${id}-jade)`}
           />
           <path
-            d="M57 78q-5 30 18 42M103 78q5 30-18 42M63 85l8 8m-8 3 8 8m26-19-8 8m8 3-8 8"
-            stroke="#294b41"
+            d="M58 51q22 17 44 0m-22 9v69M54 80q12-12 26-15 14 3 26 15M55 92q11 17 21 23m29-23q-11 17-21 23"
+            stroke="#a5c2a0"
           />
           <path
-            d="M67 38L57 25m36 13 10-13M70 51q10 7 20 0"
-            stroke="#695f39"
-            strokeWidth="2"
+            d="m61 60-5 21q-1 28 18 39m25-60 5 21q1 28-18 39"
+            stroke="#2e6654"
+            strokeWidth="3"
           />
-          <circle cx="71" cy="38" r="2" fill="#3e513b" />
-          <circle cx="89" cy="38" r="2" fill="#3e513b" />
+          <path
+            d="m65 39-9-12m39 12 9-12M68 34h5m14 0h5m-22 9q10 4 20 0"
+            stroke="#c5b57a"
+          />
+          <path d="M64 66q7-5 11-5" stroke="#d1d6ab" strokeWidth="2" />
         </g>
       ) : null}
       {kind === "vase" ? (
@@ -477,43 +548,62 @@ export default function TreasureArt({
       ) : null}
       {kind === "gem" ? (
         <g>
-          <path d="M54 31h52l28 43-54 61L26 74Z" fill={`url(#${id}-jade)`} />
           <path
-            d="M54 31L62 72l18 63 18-63 8-41M26 74l36-2 18-41 18 41 36 2M62 72h36"
-            stroke="#b9cba3"
+            d="m56 30 48 4 24 38-23 42-28 22-45-57Z"
+            fill={`url(#${id}-jade)`}
           />
           <path
-            d="M54 31L26 74l36-2ZM98 72l36 2-54 61Z"
-            fill="#163e36"
-            opacity=".5"
+            d="m56 30 14 37-38 12m38-12 34-33-7 37 31 1-31-1-20 65Zm0 0 27 4M56 30 77 136m-7-69 7 69m20-65 8 43"
+            stroke="#a9c7a5"
           />
-          <path d="M62 72l18-41 18 41Z" fill="#d0d8ae" opacity=".5" />
-          <path d="M44 37l-8 10m-2 6-4 5M115 97l-14 16" stroke="#9b7e47" />
-          <path d="M71 19q9-9 18 0m-9-6v10" stroke="#b19b6f" />
+          <path d="m56 30 14 37 27 4 7-37Z" fill="#9bb89b" opacity=".55" />
+          <path
+            d="m32 79 38-12 7 69Zm65-8 31 1-23 42-28 22Z"
+            fill="#154c43"
+            opacity=".6"
+          />
+          <path
+            d="m56 30-24 49 12-7 20-30Zm14 37 27 4-20 65Z"
+            fill="#b6d0b0"
+            opacity=".25"
+          />
+          <path d="m91 45-11 16m26 31-5 10" stroke="#e0ddbb" />
         </g>
       ) : null}
       {kind === "moon" ? (
         <g>
           <path
-            d="M55 34q25-20 50 0l15 47-20 48H60L40 81Z"
-            fill="#bec7c3"
-            stroke="#687c7c"
+            d="M51 55q29-32 58 0l9 45q-7 33-38 33-32 0-38-33Z"
+            fill="#a38e58"
+          />
+          <ellipse
+            cx="80"
+            cy="79"
+            rx="35"
+            ry="47"
+            fill="#b6c8c6"
+            stroke="#758b88"
           />
           <path
-            d="M55 34l25 17 25-17M40 81l40-30 40 30-40 48ZM80 51v78M55 34L40 81l20 48m45-95 15 47-20 48"
-            stroke="#edf0db"
+            d="M54 49q25-24 48-1 18 17 5 46-20 35-48 13-14-15-5-58Z"
+            fill="#cad6cf"
+            stroke="none"
           />
           <path
-            d="M91 65q-25 6-15 29 9 13 23 5-28 1-8-34Z"
-            fill="#ece9ce"
-            stroke="#9da593"
+            d="M87 48q-26 6-24 33 3 28 29 28-14-11-15-28-1-19 10-33Z"
+            fill="#ede7c9"
+            stroke="#a3b2a3"
           />
           <path
-            d="M53 134q27 11 54 0M57 138q23 9 46 0"
-            stroke="#9c8655"
+            d="M58 47q10-10 21-10m-24 16-3 7m-1 51q28 26 56-1"
+            stroke="#edf0dc"
+            strokeWidth="2"
+          />
+          <path
+            d="M45 94l7 7m56-7-7 7M61 130h38m-35 5h31"
+            stroke="#c7ae77"
             strokeWidth="3"
           />
-          <path d="M50 28l-5-7m65 7 5-7m-35-7v-7" stroke="#b6aa81" />
         </g>
       ) : null}
       {kind === "crown" || kind === "seal" ? (
@@ -551,8 +641,6 @@ export default function TreasureArt({
           <rect x="49" y="87" width="12" height="17" rx="2" fill="#c5a267" />
           <rect x="99" y="87" width="12" height="17" rx="2" fill="#c5a267" />
           <path d="M55 90v11m50-11v11" stroke="#645236" />
-          <path d="M68 39l13-23 21 14-10 18" fill="#e5d7ac" />
-          <path d="M80 23l14 10m-17-4 14 10" stroke="#a69b77" />
         </g>
       ) : null}
       {newDrawings[kind] ? <g>{newDrawings[kind]}</g> : null}
