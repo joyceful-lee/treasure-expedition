@@ -289,7 +289,7 @@ export default function Expedition({
     setMessage("");
     setError("");
   }
-  async function browseCheckpoint(id: number) {
+  async function browseCheckpoint(id: number, restartTimer = false) {
     if (
       busy ||
       id < 1 ||
@@ -303,7 +303,11 @@ export default function Expedition({
     }
     await run(async () => {
       if (stateFor(id, progress) !== "completed") {
-        await api("/api/game", { action: "start", checkpoint: id });
+        await api("/api/game", {
+          action: "start",
+          checkpoint: id,
+          restartTimer,
+        });
         await loadGame();
       }
       setSelected(id);
@@ -453,7 +457,7 @@ export default function Expedition({
     });
   }
   function startPuzzle() {
-    void browseCheckpoint(selected);
+    void browseCheckpoint(selected, status === "attempted");
   }
   return (
     <div className="app-shell">
@@ -876,7 +880,7 @@ export default function Expedition({
                   <p className="timing-note">
                     {boardSort === "time" && level === 0
                       ? "Full-expedition times include all 60 timed checkpoints."
-                      : "Time runs from the first opening of a puzzle until its successful answer, including time spent away."}{" "}
+                      : "Time runs until a successful answer, including time spent away. Choosing ‘Try the puzzle again’ starts a fresh timer."}{" "}
                     Earlier completions without a recorded timer keep their
                     points.
                   </p>
