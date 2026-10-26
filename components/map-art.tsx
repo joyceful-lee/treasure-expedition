@@ -353,19 +353,13 @@ export default function MapArt() {
         strokeLinejoin="round"
       />
       <g
-        transform="translate(699 250) rotate(26)"
+        transform="translate(696 248) rotate(26)"
         stroke="#74664b"
         strokeWidth="1"
       >
-        <path
-          d="M-23 10q22 9 46 0v5h-46Z"
-          fill="#677968"
-          opacity=".35"
-          stroke="none"
-        />
-        <path d="M-24-8h48v16h-48Z" fill="#c6b38b" />
-        {[-18, -12, -6, 0, 6, 12, 18].map((x) => (
-          <path key={x} d={`M${x}-7V7`} stroke="#9b8863" strokeWidth=".8" />
+        <path d="M-33-6h66v12h-66Z" fill="#c6b38b" />
+        {[-27, -21, -15, -9, -3, 3, 9, 15, 21, 27].map((x) => (
+          <path key={x} d={`M${x}-5V5`} stroke="#9b8863" strokeWidth=".8" />
         ))}
       </g>
       <g

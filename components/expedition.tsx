@@ -902,13 +902,15 @@ export default function Expedition({
                                 </span>
                               </td>
                               <td>
-                                <span className="table-avatar">
-                                  {r.username[0].toUpperCase()}
+                                <span className="explorer-identity">
+                                  <span className="table-avatar">
+                                    {r.username[0].toUpperCase()}
+                                  </span>
+                                  {r.username}
+                                  {r.completed === 60 ? (
+                                    <CompletionBadge />
+                                  ) : null}
                                 </span>
-                                {r.username}
-                                {r.completed === 60 ? (
-                                  <CompletionBadge />
-                                ) : null}
                               </td>
                               <td>
                                 {level === 0 ? (
