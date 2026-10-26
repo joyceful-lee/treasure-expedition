@@ -97,3 +97,10 @@ The leaderboard defaults to the top ten cumulative scores, with individual check
 A confirmed sale removes one available artifact and credits its rarity price atomically: Common 40, Uncommon 100, Rare 240, Epic 600, Legendary 1,500. Escrowed items cannot be sold. Checkpoint timers begin at the first opening of a puzzle and continue while closed; historical untimed completions retain points and show “Not timed.” The time leaderboard excludes those entries, and a cumulative time requires 60 timed completions. Every board displays a completion emblem for players with all 60 current checkpoints complete.
 
 The revised cipher clues use a reference Morse codebook, prime-position extraction plus a shift, a twelve-letter rail cipher plus a shift, and a secondary Atbash layer in the ruins rotor. `db/verify-expedition-v5.sql` exercises notifications, receipts, selling, escrow protection, persistent timers, full-route eligibility and reset behavior with rolled-back fixtures.
+
+
+## Public usernames and bulk sales
+
+Players can edit their public username from the top bar. New profile names and edits share client/server format and inappropriate-language checks; an index enforces case-insensitive uniqueness. Changes affect leaderboards and trade names without changing account credentials. Log in opens by default, with account creation available through the modal switch.
+
+`db/expedition-v6.sql` adds quantity-based selling. A sale validates availability, locks the player account, debits across legacy/current inventory, and credits the full amount in one transaction. Pack receipts report whether the drawn artifact is the first currently owned copy, so duplicates receive different popup copy. `db/verify-expedition-v6.sql` verifies bulk accounting, oversell rejection, player isolation, name uniqueness, and reward labels using rolled-back fixtures.

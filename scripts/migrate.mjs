@@ -9,6 +9,7 @@ const source = (
       "artifacts-v3.sql",
       "expedition-v4.sql",
       "expedition-v5.sql",
+      "expedition-v6.sql",
     ].map((file) =>
       readFile(new URL(`../db/${file}`, import.meta.url), "utf8"),
     ),

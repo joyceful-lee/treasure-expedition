@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isCorrect } from "@/lib/puzzles";
+import { usernameError } from "@/lib/usernames";
 import { TOTAL_CHECKPOINTS } from "@/lib/route-data";
 export const dynamic = "force-dynamic";
 export async function GET() {
@@ -45,16 +46,20 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const sql = db();
     const uid = session.user.id;
-    if (body.action === "profile") {
-      if (
-        typeof body.username !== "string" ||
-        !/^[a-zA-Z0-9_]{3,20}$/.test(body.username)
-      )
-        return NextResponse.json(
-          { error: "Choose 3–20 letters, numbers, or underscores." },
-          { status: 400 },
-        );
-      await sql`INSERT INTO expedition.users(id,username) VALUES(${uid},${body.username}) ON CONFLICT(id) DO NOTHING`;
+    if (body.action === "profile" || body.action === "username") {
+      const problem = usernameError(body.username);
+      if (problem)
+        return NextResponse.json({ error: problem }, { status: 400 });
+      if (body.action === "username") {
+        const rows =
+          await sql`UPDATE expedition.users SET username=${body.username} WHERE id=${uid} RETURNING id`;
+        if (!rows.length)
+          return NextResponse.json(
+            { error: "Create your explorer profile first." },
+            { status: 400 },
+          );
+      } else
+        await sql`INSERT INTO expedition.users(id,username) VALUES(${uid},${body.username}) ON CONFLICT(id) DO NOTHING`;
       return NextResponse.json({ ok: true });
     }
     if (body.action === "start") {
@@ -71,13 +76,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true });
     }
     if (body.action === "sell") {
-      if (typeof body.item !== "string")
+      if (
+        typeof body.item !== "string" ||
+        !Number.isInteger(body.quantity) ||
+        body.quantity < 1 ||
+        body.quantity > 10000
+      )
         return NextResponse.json(
           { error: "Choose a treasure to sell." },
           { status: 400 },
         );
       const rows =
-        await sql`SELECT expedition.sell_artifact(${uid}::uuid,${body.item}) AS coins`;
+        await sql`SELECT expedition.sell_artifacts(${uid}::uuid,${body.item},${body.quantity}::integer) AS coins`;
       return NextResponse.json(rows[0]);
     }
     if (body.action === "acknowledge") {
@@ -116,8 +126,8 @@ export async function POST(request: NextRequest) {
     }
     if (body.action === "pack") {
       const rows =
-        await sql`SELECT expedition.open_artifact_pack(${uid}::uuid) AS reward`;
-      return NextResponse.json(rows[0]);
+        await sql`SELECT expedition.open_artifact_pack_receipt(${uid}::uuid) AS result`;
+      return NextResponse.json(rows[0].result);
     }
     if (body.action === "trade") {
       if (
@@ -149,7 +159,7 @@ export async function POST(request: NextRequest) {
     const e = error as { code?: string; message?: string };
     const message =
       e.code === "23505"
-        ? "That explorer name is taken. Try another."
+        ? "That username is taken. Try another."
         : e.code === "P0001"
           ? e.message
           : "Could not save that action. Please try again.";

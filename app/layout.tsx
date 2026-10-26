@@ -3,7 +3,7 @@ import "./globals.css";
 import "./journal.css";
 import "./route.css";
 export const metadata: Metadata = {
-  title: "Treasure Expedition · The island survey",
+  title: "Treasure Expedition",
   description:
     "Explore the Lost Island by solving its inscriptions and riddles, then catalogue recovered artifacts or trade with other explorers.",
 };

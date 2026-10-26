@@ -275,21 +275,6 @@ export default function MapArt() {
             />
             <path d="M-8 13V3Q0-13 8 3v10" fill="#84947c" />
             <path d="M-24-14l9-7 8 7m14 0 8-7 9 7M-22 18h44" fill="#d9cda7" />
-            <path
-              d="M-18-6h6m0 6h-6m6 6h-6M12-6h6m-6 6h6m-6 6h6M-6-7h12"
-              stroke="#9d9878"
-            />
-            <path
-              d="M-24 8q8-7 4-16m43 23q-9-7-5-17"
-              stroke="#6f8860"
-              strokeWidth="2"
-              fill="none"
-            />
-            <path
-              d="m-22 0-6-2 2-5m47 11 5-3 1 6"
-              stroke="#6f8860"
-              fill="none"
-            />
           </g>
           <g transform="translate(507 342)">
             <path d="M-28 18h60v5h-60Zm-5 5h70v5h-70" fill="#b9b28e" />
@@ -297,16 +282,12 @@ export default function MapArt() {
               d="M-24 18V-9h8v27m7 0V-5h7v23m9 0V-9h8v27m8 0V1h8v17"
               fill="#d5c8a0"
             />
-            <path d="M-29-9 0-28 31-9H9l-9-6-9 6Z" fill="#d9ccaa" />
             <path
-              d="m-21-14 21-14 9 6m6 4 12 8M-24-5h8m7 5h7m9-5h8m8 10h8M-24 14h8m-9-1h3m26 10h21"
+              d="M-24-5h8m7 5h7m9-5h8m8 10h8M-24 14h8m-9-1h3m26 10h21"
               stroke="#a09573"
               fill="none"
             />
-            <path
-              d="m25-12 8 1-3 7-8-1Zm-55 24 7-1 3 7h-12Zm42 16 9-2 6 5h-15"
-              fill="#c5bd9a"
-            />
+            <path d="m-30 12 7-1 3 7h-12Zm42 16 9-2 6 5h-15" fill="#c5bd9a" />
             <path
               d="M-31 24q8-8 13-2m32-3q6-8 10-5"
               stroke="#819278"
@@ -386,12 +367,6 @@ export default function MapArt() {
         {[-18, -12, -6, 0, 6, 12, 18].map((x) => (
           <path key={x} d={`M${x}-7V7`} stroke="#9b8863" strokeWidth=".8" />
         ))}
-        <path
-          d="M-26-12h52M-26 12h52m-48-26v7m10-7v7m12-7v7m12-7v7m10-7v7m-44 14v7m10-7v7m12-7v7m12-7v7m10-7v7"
-          fill="none"
-          strokeWidth="1.4"
-        />
-        <path d="M-26-7v14m52-14v14" stroke="#e6d1a0" />
       </g>
       <g
         transform="translate(90 461) rotate(-15)"

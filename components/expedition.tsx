@@ -23,6 +23,7 @@ import {
   Trophy,
   X,
 } from "lucide-react";
+import { usernameError } from "@/lib/usernames";
 import { authClient } from "@/lib/auth-client";
 import {
   checkpoints,
@@ -105,7 +106,7 @@ export default function Expedition({
   const [signedIn, setSignedIn] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authOpen, setAuthOpen] = useState(false);
-  const [signUp, setSignUp] = useState(true);
+  const [signUp, setSignUp] = useState(false);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -120,6 +121,10 @@ export default function Expedition({
   const [boardSort, setBoardSort] = useState<"points" | "time">("points");
   const [notices, setNotices] = useState<TradeNotice[]>([]);
   const [tradeReceipt, setTradeReceipt] = useState<TradeReceipt | null>(null);
+  const [saleQuantity, setSaleQuantity] = useState(1);
+  const [usernameOpen, setUsernameOpen] = useState(false);
+  const [usernameDraft, setUsernameDraft] = useState("");
+  const [rewardIsNew, setRewardIsNew] = useState(true);
   const [saleItem, setSaleItem] = useState<string | null>(null);
   const [boardRevision, setBoardRevision] = useState(0);
   const [rankings, setRankings] = useState<Ranking[]>([]);
@@ -150,7 +155,8 @@ export default function Expedition({
     resetOpen ||
     !!packReward ||
     !!tradeReceipt ||
-    !!saleItem;
+    !!saleItem ||
+    usernameOpen;
   const loadGame = useCallback(async () => {
     const [session, game] = await Promise.all([
       authClient.getSession(),
@@ -318,6 +324,7 @@ export default function Expedition({
     setPackReward(null);
     setTradeReceipt(null);
     setSaleItem(null);
+    setUsernameOpen(false);
     setMessage("");
     setError("");
   }
@@ -331,7 +338,7 @@ export default function Expedition({
   }
   function requireProfile() {
     if (!profile) {
-      setSignUp(!signedIn);
+      setSignUp(false);
       setAuthOpen(true);
       return false;
     }
@@ -355,6 +362,10 @@ export default function Expedition({
     const data = new FormData(event.currentTarget);
     await run(async () => {
       const username = String(data.get("username") || "");
+      if (signUp || signedIn) {
+        const problem = usernameError(username);
+        if (problem) throw new Error(problem);
+      }
       if (!signedIn) {
         const params = {
           email: String(data.get("email")),
@@ -416,6 +427,7 @@ export default function Expedition({
     if (!requireProfile()) return;
     await run(async () => {
       const data = await api("/api/game", { action: "pack" });
+      setRewardIsNew(data.isNew);
       await loadGame();
       setPackReward(data.reward);
     });
@@ -539,15 +551,27 @@ export default function Expedition({
               {profile?.coins ?? 0}
               <span> coins</span>
             </span>
+            {profile ? (
+              <button
+                className="outline-button small"
+                onClick={() => {
+                  setUsernameDraft(profile.username);
+                  setError("");
+                  setUsernameOpen(true);
+                }}
+              >
+                Edit username
+              </button>
+            ) : null}
             {!profile ? (
               <button
                 className="button small"
                 onClick={() => {
-                  setSignUp(!signedIn);
+                  setSignUp(false);
                   setAuthOpen(true);
                 }}
               >
-                {signedIn ? "Choose explorer name" : "Sign up or log in"}
+                {signedIn ? "Choose explorer name" : "Log in"}
                 <ArrowRight size={15} />
               </button>
             ) : null}
@@ -569,29 +593,13 @@ export default function Expedition({
           ) : null}
           {tab === "map" ? (
             <>
-              <section className="page-heading">
-                <div>
-                  <div className="eyebrow">
-                    <span /> THE ISLAND SURVEY
-                  </div>
-                  <h1>Beyond the southern shore</h1>
-                  <p>
-                    Follow the trail inland as each solved clue reveals another
-                    stretch of the island.
-                  </p>
-                </div>
+              <div className="expedition-controls compact-map-controls">
                 <button
                   className="outline-button guide-button"
                   onClick={() => setHelpOpen(true)}
                 >
                   <BookOpen size={16} /> How to play
                 </button>
-              </section>
-              <div className="expedition-controls">
-                <span>
-                  Earn three stars on your first attempt, two on your second, or
-                  one on later attempts.
-                </span>
                 <button
                   className="text-button"
                   disabled={busy}
@@ -694,11 +702,7 @@ export default function Expedition({
           ) : null}
           {tab === "collection" ? (
             <>
-              <PageHeading
-                eyebrow="ARTIFACT REGISTER"
-                title="The specimen cabinet"
-                text="Your recovered artifacts are catalogued here, where you can keep them or set aside duplicates for a trade."
-              />
+              <PageHeading title="The specimen cabinet" />
               <div className="pack-banner">
                 <div className="pack-icon">
                   <TreasureArt kind="satchel" />
@@ -788,10 +792,11 @@ export default function Expedition({
                                 disabled={busy}
                                 onClick={() => {
                                   setError("");
+                                  setSaleQuantity(1);
                                   setSaleItem(t.id);
                                 }}
                               >
-                                Sell one · {sellPrices[t.rarity]} coins
+                                Sell treasures · {sellPrices[t.rarity]} each
                               </button>
                             ) : null}
                             <div className="treasure-bottom">
@@ -988,19 +993,15 @@ export default function Expedition({
                       solve.
                     </li>
                   </ul>
-                  <p>
-                    The public register shows your explorer name while keeping
-                    your email private.
-                  </p>
                   {!profile ? (
                     <button
                       className="button"
                       onClick={() => {
-                        setSignUp(!signedIn);
+                        setSignUp(false);
                         setAuthOpen(true);
                       }}
                     >
-                      Create an explorer account <ArrowRight size={15} />
+                      Log in to save your scores <ArrowRight size={15} />
                     </button>
                   ) : null}
                 </aside>
@@ -1158,10 +1159,6 @@ export default function Expedition({
               ) : null}
             </>
           ) : null}
-          <footer className="page-footer">
-            <span>Island survey · Edition I</span>
-            <span>Progress is saved to your explorer account.</span>
-          </footer>
         </div>
       </main>
       <dialog
@@ -1269,10 +1266,36 @@ export default function Expedition({
                 <TreasureArt kind={saleItem} />
               </div>
               <p>
-                You will sell one{" "}
-                {treasures.find((t) => t.id === saleItem)?.name} for{" "}
+                {treasures.find((t) => t.id === saleItem)?.name} ·{" "}
                 {sellPrices[treasures.find((t) => t.id === saleItem)!.rarity]}{" "}
-                coins. You can keep any remaining copies.
+                coins each
+              </p>
+              <label className="sale-quantity">
+                Quantity to sell
+                <input
+                  type="number"
+                  min={1}
+                  max={Math.min(
+                    10000,
+                    inventory.find((i) => i.treasure_id === saleItem)
+                      ?.quantity ?? 0,
+                  )}
+                  step={1}
+                  value={saleQuantity}
+                  onChange={(e) => setSaleQuantity(Number(e.target.value))}
+                />
+              </label>
+              <p>
+                {inventory.find((i) => i.treasure_id === saleItem)?.quantity ??
+                  0}{" "}
+                available · Total:{" "}
+                {(
+                  sellPrices[treasures.find((t) => t.id === saleItem)!.rarity] *
+                  (Number.isInteger(saleQuantity) && saleQuantity > 0
+                    ? saleQuantity
+                    : 0)
+                ).toLocaleString()}{" "}
+                coins
               </p>
               <div className="checkpoint-navigation">
                 <button
@@ -1284,22 +1307,89 @@ export default function Expedition({
                 </button>
                 <button
                   className="button"
-                  disabled={busy}
+                  disabled={
+                    busy ||
+                    !Number.isInteger(saleQuantity) ||
+                    saleQuantity < 1 ||
+                    saleQuantity >
+                      Math.min(
+                        10000,
+                        inventory.find((i) => i.treasure_id === saleItem)
+                          ?.quantity ?? 0,
+                      )
+                  }
                   onClick={() =>
                     run(async () => {
                       const result = await api("/api/game", {
                         action: "sell",
                         item: saleItem,
+                        quantity: saleQuantity,
                       });
                       await loadGame();
                       closeModal();
-                      setMessage(`Treasure sold for ${result.coins} coins.`);
+                      setMessage(
+                        `${saleQuantity} treasures sold for ${result.coins} coins.`,
+                      );
                     })
                   }
                 >
                   {busy ? "Selling…" : "Sell for coins"}
                 </button>
               </div>
+            </section>
+          ) : null}
+          {usernameOpen ? (
+            <section>
+              <div className="eyebrow">PUBLIC USERNAME</div>
+              <h2>Choose your explorer name</h2>
+              <p>
+                This name appears on leaderboards and trade offers. Choose a
+                nickname you want other players to see.
+              </p>
+              <form
+                className="auth-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void run(async () => {
+                    const problem = usernameError(usernameDraft);
+                    if (problem) throw new Error(problem);
+                    await api("/api/game", {
+                      action: "username",
+                      username: usernameDraft,
+                    });
+                    await loadGame();
+                    setBoardRevision((v) => v + 1);
+                    closeModal();
+                    setMessage("Your public username has been updated.");
+                  });
+                }}
+              >
+                <label>
+                  Public username
+                  <input
+                    name="username"
+                    value={usernameDraft}
+                    onChange={(e) => setUsernameDraft(e.target.value)}
+                    minLength={3}
+                    maxLength={20}
+                    pattern="[a-zA-Z0-9_]{3,20}"
+                    autoComplete="nickname"
+                    required
+                  />
+                </label>
+                <small>Use 3–20 letters, numbers, or underscores.</small>
+                {usernameError(usernameDraft) ? (
+                  <p className="field-error" role="status">
+                    {usernameError(usernameDraft)}
+                  </p>
+                ) : null}
+                <button
+                  className="button"
+                  disabled={busy || !!usernameError(usernameDraft)}
+                >
+                  {busy ? "Saving…" : "Save username"}
+                </button>
+              </form>
             </section>
           ) : null}
           {resetOpen ? (
@@ -1360,7 +1450,7 @@ export default function Expedition({
                 {signedIn
                   ? "Choose your explorer name"
                   : signUp
-                    ? "Sign up or log in."
+                    ? "Create your account"
                     : "Welcome back, explorer."}
               </h2>
               <p>
@@ -1371,7 +1461,7 @@ export default function Expedition({
               <form className="auth-form" onSubmit={authenticate}>
                 {signUp || signedIn ? (
                   <label>
-                    Explorer name
+                    Public username
                     <input
                       name="username"
                       required
@@ -1621,7 +1711,11 @@ export default function Expedition({
                 const t = treasures.find((t) => t.id === packReward)!;
                 return (
                   <div className="pack-reveal">
-                    <span className="eyebrow">A NEW DISCOVERY</span>
+                    <span className="eyebrow">
+                      {rewardIsNew
+                        ? "A NEW DISCOVERY"
+                        : "ANOTHER FOR YOUR COLLECTION"}
+                    </span>
                     <div className="reveal-illustration">
                       <TreasureArt kind={t.id} />
                     </div>
@@ -1658,19 +1752,21 @@ function PageHeading({
   title,
   text,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
-  text: string;
+  text?: string;
 }) {
   return (
     <section className="page-heading">
       <div>
-        <div className="eyebrow">
-          <span />
-          {eyebrow}
-        </div>
+        {eyebrow ? (
+          <div className="eyebrow">
+            <span />
+            {eyebrow}
+          </div>
+        ) : null}
         <h1>{title}</h1>
-        <p>{text}</p>
+        {text ? <p>{text}</p> : null}
       </div>
     </section>
   );

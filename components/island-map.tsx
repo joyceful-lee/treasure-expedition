@@ -53,10 +53,6 @@ export default function IslandMap({
         ))}
       </nav>
       <div className="route-map-help">
-        <span>
-          Pan the chart to explore all 60 numbered stops. Larger pins mark the
-          major challenges.
-        </span>
         {next ? (
           <button
             type="button"

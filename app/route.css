@@ -822,3 +822,29 @@
     padding-inline: 10px;
   }
 }
+
+.compact-map-controls {
+  margin-bottom: 18px;
+}
+.sale-quantity {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 18px 0;
+}
+.sale-quantity input {
+  border: 1px solid #b8a784;
+  padding: 10px 12px;
+  background: #f5ecd5;
+  max-width: 180px;
+  color: #334c3b;
+}
+.field-error {
+  color: #9b4d38;
+}
+.route-map-help {
+  justify-content: flex-end;
+}
+.route-map-help:empty {
+  display: none;
+}
