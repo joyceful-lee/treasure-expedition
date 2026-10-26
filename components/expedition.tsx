@@ -855,23 +855,23 @@ export default function Expedition({
                       <ChevronDown size={14} />
                     </label>
                   </div>
-                  <div
-                    className="score-toggle"
-                    role="group"
-                    aria-label="Rank explorers by"
-                  >
-                    <button
-                      aria-pressed={boardSort === "points"}
-                      onClick={() => setBoardSort("points")}
-                    >
-                      Highest points
-                    </button>
-                    <button
-                      aria-pressed={boardSort === "time"}
-                      onClick={() => setBoardSort("time")}
-                    >
-                      Fastest time
-                    </button>
+                  <div className="score-filter">
+                    <label htmlFor="leaderboard-sort">Sort by</label>
+                    <div className="level-select">
+                      <select
+                        id="leaderboard-sort"
+                        value={boardSort}
+                        onChange={(e) =>
+                          setBoardSort(
+                            e.target.value === "time" ? "time" : "points",
+                          )
+                        }
+                      >
+                        <option value="points">Highest points</option>
+                        <option value="time">Fastest time</option>
+                      </select>
+                      <ChevronDown size={14} aria-hidden="true" />
+                    </div>
                   </div>
                   <p className="timing-note">
                     {boardSort === "time" && level === 0
