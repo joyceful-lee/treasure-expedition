@@ -7,11 +7,11 @@ export default function CheckpointTimer({
 }: {
   record: Progress | undefined;
 }) {
-  const [now, setNow] = useState(0);
+  const [now, setNow] = useState(Date.now);
   useEffect(() => {
     if (!record?.started_at || record.completed_at) return;
     setNow(Date.now());
-    const timer = setInterval(() => setNow(Date.now()), 1000);
+    const timer = setInterval(() => setNow(Date.now()), 250);
     return () => clearInterval(timer);
   }, [record?.started_at, record?.completed_at]);
   const elapsed = record?.completed_at

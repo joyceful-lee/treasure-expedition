@@ -30,6 +30,7 @@ export async function GET() {
   }
 }
 export async function POST(request: NextRequest) {
+  const requestStartedAt = new Date().toISOString();
   // Reject cross-origin writes, including requests with missing Origin.
   if (request.headers.get("origin") !== new URL(request.url).origin)
     return NextResponse.json(
@@ -72,15 +73,16 @@ export async function POST(request: NextRequest) {
           { error: "Choose a valid checkpoint." },
           { status: 400 },
         );
-      await sql.transaction([
+      const results = await sql.transaction([
         sql`SELECT expedition.begin_checkpoint(${uid}::uuid,${body.checkpoint}::integer)`,
         ...(body.restartTimer === true
           ? [
-              sql`UPDATE expedition.route_progress SET started_at=clock_timestamp(),duration_ms=NULL WHERE user_id=${uid}::uuid AND checkpoint=${body.checkpoint}::integer AND completed_at IS NULL AND attempts>0`,
+              sql`UPDATE expedition.route_progress SET started_at=${requestStartedAt}::timestamptz,duration_ms=NULL WHERE user_id=${uid}::uuid AND checkpoint=${body.checkpoint}::integer AND completed_at IS NULL`,
             ]
           : []),
+        sql`SELECT checkpoint,attempts,completed_at,score,treasure_id,started_at,duration_ms::double precision AS duration_ms FROM expedition.route_progress WHERE user_id=${uid}::uuid AND checkpoint=${body.checkpoint}::integer`,
       ]);
-      return NextResponse.json({ ok: true });
+      return NextResponse.json({ ok: true, progress: results.at(-1)?.[0] });
     }
     if (body.action === "sell") {
       if (

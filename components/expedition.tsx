@@ -108,6 +108,7 @@ export default function Expedition({
   const [authOpen, setAuthOpen] = useState(false);
   const [signUp, setSignUp] = useState(false);
   const [puzzleOpen, setPuzzleOpen] = useState(false);
+  const [openingTimer, setOpeningTimer] = useState<Progress | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -302,14 +303,6 @@ export default function Expedition({
       return;
     }
     await run(async () => {
-      if (stateFor(id, progress) !== "completed") {
-        await api("/api/game", {
-          action: "start",
-          checkpoint: id,
-          restartTimer,
-        });
-        await loadGame();
-      }
       setSelected(id);
       setDetailsOpen(false);
       setPuzzleOpen(true);
@@ -317,6 +310,36 @@ export default function Expedition({
       setHint(false);
       setMessage("");
       setError("");
+      if (stateFor(id, progress) !== "completed") {
+        setOpeningTimer({
+          ...progress.find((p) => p.checkpoint === id),
+          checkpoint: id,
+          attempts: progress.find((p) => p.checkpoint === id)?.attempts ?? 0,
+          completed_at: null,
+          score: 0,
+          started_at:
+            (!restartTimer &&
+              progress.find((p) => p.checkpoint === id)?.started_at) ||
+            new Date().toISOString(),
+        });
+        try {
+          const data = await api("/api/game", {
+            action: "start",
+            checkpoint: id,
+            restartTimer,
+          });
+          setProgress((current) => [
+            ...current.filter((p) => p.checkpoint !== id),
+            data.progress,
+          ]);
+        } catch (error) {
+          setPuzzleOpen(false);
+          setDetailsOpen(true);
+          throw error;
+        } finally {
+          setOpeningTimer(null);
+        }
+      }
     });
   }
   function closeModal() {
@@ -457,7 +480,7 @@ export default function Expedition({
     });
   }
   function startPuzzle() {
-    void browseCheckpoint(selected, status === "attempted");
+    void browseCheckpoint(selected, true);
   }
   return (
     <div className="app-shell">
@@ -880,7 +903,7 @@ export default function Expedition({
                   <p className="timing-note">
                     {boardSort === "time" && level === 0
                       ? "Full-expedition times include all 60 timed checkpoints."
-                      : "Time runs until a successful answer, including time spent away. Choosing ‘Try the puzzle again’ starts a fresh timer."}{" "}
+                      : "Opening an unfinished puzzle starts a fresh timer, which runs until a successful answer, including time spent away."}{" "}
                     Earlier completions without a recorded timer keep their
                     points.
                   </p>
@@ -1553,7 +1576,11 @@ export default function Expedition({
               />
               <p>{cp.subtitle}</p>
               <CheckpointTimer
-                record={progress.find((p) => p.checkpoint === selected)}
+                record={
+                  openingTimer?.checkpoint === selected
+                    ? openingTimer
+                    : progress.find((p) => p.checkpoint === selected)
+                }
               />
               <div className="puzzle-clue">
                 <span className="eyebrow">{cp.kind}</span>
