@@ -1,3 +1,6 @@
+// Permit complete decimals on submission while text inputs preserve partial typing.
+export const decimalAnswerPattern = String.raw`(?:\+|-)?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)`;
+
 export type ActivityField = {
   id: string;
   label: string;

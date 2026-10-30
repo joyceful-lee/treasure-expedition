@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import type { Checkpoint } from "@/lib/route-data";
-import { activities } from "@/lib/challenges";
+import { activities, decimalAnswerPattern } from "@/lib/challenges";
 
 function FieldModel({
   checkpoint,
@@ -310,17 +310,22 @@ export default function InteractiveChallenge({
                     min={field.min}
                     max={field.max}
                     step={field.step}
-                    value={values[field.id] || field.min || 0}
+                    value={
+                      values[field.id] &&
+                      Number.isFinite(Number(values[field.id]))
+                        ? Number(values[field.id])
+                        : (field.min ?? 0)
+                    }
                     onChange={(event) => update(field.id, event.target.value)}
                     aria-label={`Adjust ${field.label}`}
                     aria-describedby={`${id}-help`}
                   />
                   <input
                     id={id}
-                    type="number"
-                    min={field.min}
-                    max={field.max}
-                    step={field.step}
+                    type="text"
+                    inputMode={(field.min ?? 0) < 0 ? "text" : "decimal"}
+                    pattern={decimalAnswerPattern}
+                    maxLength={32}
                     value={values[field.id] ?? ""}
                     onChange={(event) => update(field.id, event.target.value)}
                     aria-describedby={`${id}-help`}
