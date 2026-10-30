@@ -98,7 +98,7 @@ export default function IslandMap({
                   } as React.CSSProperties
                 }
                 onClick={() => onSelect(cp.id)}
-                aria-label={`Checkpoint ${cp.id}: ${cp.name}, ${state}${stars ? `, ${stars} out of 3 stars` : ""}${cp.major ? ", extreme challenge" : ""}`}
+                aria-label={`Checkpoint ${cp.id}: ${cp.name}, ${state}${stars ? `, ${stars} out of 3 stars` : ""}${cp.major ? ", expedition challenge" : ""}`}
                 title={`${cp.id}. ${cp.name} · ${state}`}
               >
                 <span className="pin-circle">{cp.id}</span>

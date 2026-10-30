@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { isCorrect } from "@/lib/puzzles";
+import { explanationFor } from "@/lib/puzzles-route";
 import { usernameError } from "@/lib/usernames";
 import { TOTAL_CHECKPOINTS } from "@/lib/route-data";
 export const dynamic = "force-dynamic";
@@ -21,6 +22,14 @@ export async function GET() {
       profile: profiles[0] ?? null,
       progress,
       inventory,
+      lessons: Object.fromEntries(
+        progress
+          .filter((record) => record.completed_at)
+          .map((record) => [
+            record.checkpoint,
+            explanationFor(Number(record.checkpoint)),
+          ]),
+      ),
     });
   } catch {
     return NextResponse.json(

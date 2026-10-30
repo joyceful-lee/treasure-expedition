@@ -102,6 +102,7 @@ export default function Expedition({
   const [selected, setSelected] = useState(1);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [progress, setProgress] = useState<Progress[]>([]);
+  const [lessonNotes, setLessonNotes] = useState<Record<number, string>>({});
   const [inventory, setInventory] = useState<Item[]>([]);
   const [signedIn, setSignedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -166,6 +167,7 @@ export default function Expedition({
     setSignedIn(!!session.data?.user);
     setProfile(game.profile);
     setProgress(game.progress);
+    setLessonNotes(game.lessons ?? {});
     setInventory(game.inventory);
     if (!game.profile) setNotices([]);
     return game;
@@ -444,10 +446,12 @@ export default function Expedition({
               ? `Checkpoint complete! ${result.score} points saved. Its treasure and coins were claimed before your reset.`
               : `Checkpoint complete! +${result.score} points, +${result.coins} coins, and a new treasure.`,
         );
-      } else
+      } else {
+        setHint(true);
         setMessage(
-          "That answer does not fit the clue yet; you can try again or open the hint.",
+          "Not quite yet. Use the hint below to work through the question, then try again.",
         );
+      }
     });
   }
   async function openPack() {
@@ -1610,6 +1614,15 @@ export default function Expedition({
                     points saved to your journal and this checkpoint’s
                     leaderboard.
                   </p>
+                  {lessonNotes[selected] ? (
+                    <section
+                      className="lesson-explanation"
+                      aria-label="How it works"
+                    >
+                      <h4>How it works</h4>
+                      <p>{lessonNotes[selected]}</p>
+                    </section>
+                  ) : null}
                   <button
                     className="text-button"
                     onClick={() => {
@@ -1643,6 +1656,25 @@ export default function Expedition({
                         onAnswer={setAnswer}
                         disabled={busy}
                       />
+                    ) : cp.options ? (
+                      <fieldset className="lesson-options" disabled={busy}>
+                        <legend>Your answer</legend>
+                        {cp.options.map((option) => (
+                          <label key={option}>
+                            <input
+                              type="radio"
+                              name={`checkpoint-${cp.id}-answer`}
+                              value={option}
+                              checked={answer === option}
+                              onChange={(event) =>
+                                setAnswer(event.target.value)
+                              }
+                              required
+                            />
+                            <span>{option}</span>
+                          </label>
+                        ))}
+                      </fieldset>
                     ) : (
                       <>
                         {" "}
@@ -1653,7 +1685,7 @@ export default function Expedition({
                             onChange={(e) => setAnswer(e.target.value)}
                             maxLength={200}
                             required
-                            placeholder="Follow your curiosity…"
+                            placeholder="Write your answer…"
                             autoComplete="off"
                           />
                         </label>

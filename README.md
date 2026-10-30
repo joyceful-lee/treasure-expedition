@@ -11,7 +11,8 @@ A treasure-map puzzle adventure for middle and high-school explorers. Built with
 - 24 illustrated artifacts across Common, Uncommon, Rare, Epic, and Legendary rarities; both solved checkpoints and 400-coin packs grant weighted random draws. Duplicates are tradable.
 - Atomic trade escrow, acceptance, cancellation, coin spending, and reward grants in Postgres functions.
 - Scrollable illustrated island with checkpoint detail pop-ups, region shortcuts, keyboard-accessible dialogs, and free hints.
-- Six extreme interactive finales: a riddle reliquary, magic square, cipher rotors, ordered bridge plates, rotated star chart, and a three-part vault.
+- Six middle-school subjects: fractions/ratios/percentages, ecosystems, reading/historical evidence, geometry, Earth/space science, and data/probability. Each region includes nine scaffolded questions and a four-part interactive field study.
+- Multiple-choice reading/science questions, equivalent fraction and decimal validation, automatic hints after mistakes, and worked explanations after completion.
 
 ## Local development
 
@@ -80,7 +81,6 @@ The map is drawn locally in SVG. Fonts use Google Fonts with local serif/sans-se
 
 Rarity rates are Common 60%, Uncommon 24%, Rare 12%, Epic 3%, and Legendary 1%. The 24 positive integer weights total 400. Public scores bypass caching and refresh every 15 seconds while visible, on window focus, and after the player returns from completing a checkpoint. `db/verify-artifacts.sql` exercises all 60 completions, joined leaderboard records, replay protection, pack debit, legacy and new trades, and escrow refunds with rolled-back fixtures.
 
-
 ## Expedition revisions
 
 The collection groups artifacts by rarity, and trade offers list only owned, unreserved artifacts. Satchels cost 400 coins; checkpoint rewards remain 100 coins (300 at finales). A checkpoint earns three stars on attempt one, two on attempt two, and one on later successful attempts. Ratings derive from saved progress.
@@ -89,18 +89,20 @@ The leaderboard defaults to the top ten cumulative scores, with individual check
 
 `db/expedition-v4.sql` adds lifetime reward claims and archived reset history. An authenticated, same-origin reset request requires explicit confirmation and clears only that account's progress and leaderboard entries; inventory, coins, and trades remain. Previously claimed checkpoint rewards cannot be farmed after restarting. `db/verify-expedition-v4.sql` verifies reset isolation, archives, replay protection, scores, and pack pricing using rolled-back fixtures. Owner answer keys belong in ignored local `outputs/`, never public routes or client imports.
 
-
 ## Trade receipts, collection sales, and timing
 
 `db/expedition-v5.sql` adds private unread trade notifications for the maker, server timestamps for checkpoint timing, and catalog sale prices. Accepted exchanges return an immediate receipt to the taker, while the maker sees a Trading Post badge and dismissible message. Notifications refresh while the page is visible and when it regains focus. Both current and legacy trade offers are supported.
 
 A confirmed sale removes one available artifact and credits its rarity price atomically: Common 40, Uncommon 100, Rare 240, Epic 600, Legendary 1,500. Escrowed items cannot be sold. Checkpoint timers begin at the first opening of a puzzle and continue while closed; historical untimed completions retain points and show “Not timed.” The time leaderboard excludes those entries, and a cumulative time requires 60 timed completions. Every board displays a completion emblem for players with all 60 current checkpoints complete.
 
-The revised cipher clues use a reference Morse codebook, prime-position extraction plus a shift, a twelve-letter rail cipher plus a shift, and a secondary Atbash layer in the ruins rotor. `db/verify-expedition-v5.sql` exercises notifications, receipts, selling, escrow protection, persistent timers, full-route eligibility and reset behavior with rolled-back fixtures.
-
+`db/verify-expedition-v5.sql` exercises notifications, receipts, selling, escrow protection, persistent timers, full-route eligibility and reset behavior with rolled-back fixtures.
 
 ## Public usernames and bulk sales
 
 Players can edit their public username from the top bar. New profile names and edits share client/server format and inappropriate-language checks; an index enforces case-insensitive uniqueness. Changes affect leaderboards and trade names without changing account credentials. Log in opens by default, with account creation available through the modal switch.
 
 `db/expedition-v6.sql` adds quantity-based selling. A sale validates availability, locks the player account, debits across legacy/current inventory, and credits the full amount in one transaction. Pack receipts report whether the drawn artifact is the first currently owned copy, so duplicates receive different popup copy. `db/verify-expedition-v6.sql` verifies bulk accounting, oversell rejection, player isolation, name uniqueness, and reward labels using rolled-back fixtures.
+
+## Educational question bank
+
+Public questions and hints live in `lib/curriculum.ts`; private solutions and worked explanations live in `lib/curriculum-answers.ts`. Only explanations for the signed-in explorer's completed checkpoints are returned by the game API. `lib/challenges.ts` defines the four-part study controls. Stable checkpoint IDs preserve existing progress, rewards, and scores; changing the questions does not reset accounts. The treasury pack odds are a fictional teaching model and are separate from the collectible inventory odds.
